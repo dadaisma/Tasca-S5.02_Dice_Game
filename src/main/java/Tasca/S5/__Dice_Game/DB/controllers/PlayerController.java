@@ -38,4 +38,20 @@ public class PlayerController {
     public PlayerDTO getPlayerById(@PathVariable Long id) {
         return playerService.getPlayerById(id);
     }
+
+    @GetMapping("/ranking")
+    public double getAverageSuccessRate() {
+        return playerService.getAverageSuccessRate();
+    }
+
+    @GetMapping("/ranking/loser")
+    public PlayerDTO getPlayerWithLowestSuccessRate() {
+        return playerService.getPlayerWithLowestSuccessRate();
+    }
+
+    @GetMapping("/ranking/winner")
+    public PlayerDTO getPlayerWithHighestSuccessRate() {
+        return playerService.getPlayerWithHighestSuccessRate();
+    }
+
 }

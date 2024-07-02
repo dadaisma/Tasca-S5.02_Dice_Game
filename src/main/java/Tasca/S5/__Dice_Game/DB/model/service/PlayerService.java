@@ -8,8 +8,6 @@ public interface PlayerService {
 
     PlayerDTO createPlayer(PlayerDTO playerDTO);
 
-
-
     PlayerDTO updatePlayerName(Long id, PlayerDTO playerDTO);
 
     void deletePlayerGames(Long playerId);
@@ -17,4 +15,10 @@ public interface PlayerService {
     PlayerDTO getPlayerById(Long id);
 
     List<PlayerDTO> getAllPlayers();
+
+    double getAverageSuccessRate();
+
+    PlayerDTO getPlayerWithLowestSuccessRate();
+
+    PlayerDTO getPlayerWithHighestSuccessRate();
 }

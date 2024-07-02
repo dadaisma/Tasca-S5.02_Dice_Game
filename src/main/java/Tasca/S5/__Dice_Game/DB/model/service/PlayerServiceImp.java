@@ -7,6 +7,7 @@ import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -73,5 +74,54 @@ public class PlayerServiceImp implements PlayerService {
         long totalGames = player.getGames().size();
         long wonGames = player.getGames().stream().filter(Game::isWon).count();
         return totalGames == 0 ? 0 : (double) wonGames / totalGames * 100;
+    }
+
+    @Override
+    public double getAverageSuccessRate() {
+        List<Player> players = playerRepository.findAll();
+        if (players.isEmpty()) {
+            return 0.0;
+        }
+
+        double totalSuccessRate = players.stream()
+                .mapToDouble(this::calculateSuccessRate)
+                .sum();
+
+        return totalSuccessRate / players.size();
+    }
+
+    @Override
+    public PlayerDTO getPlayerWithLowestSuccessRate() {
+        List<Player> players = playerRepository.findAll();
+        if (players.isEmpty()) {
+            return null;
+        }
+
+        Player playerWithLowestSuccessRate = players.stream()
+                .min(Comparator.comparingDouble(this::calculateSuccessRate))
+                .orElse(null);
+
+        return convertToPlayerDTO(playerWithLowestSuccessRate);
+    }
+
+    @Override
+    public PlayerDTO getPlayerWithHighestSuccessRate() {
+        List<Player> players = playerRepository.findAll();
+        if (players.isEmpty()) {
+            return null;
+        }
+
+        Player playerWithHighestSuccessRate = players.stream()
+                .max(Comparator.comparingDouble(this::calculateSuccessRate))
+                .orElse(null);
+
+        return convertToPlayerDTO(playerWithHighestSuccessRate);
+    }
+
+    private PlayerDTO convertToPlayerDTO(Player player) {
+        if (player == null) {
+            return null;
+        }
+        return new PlayerDTO(player.getId(), player.getName(), player.getRegistrationDate(), calculateSuccessRate(player));
     }
 }
