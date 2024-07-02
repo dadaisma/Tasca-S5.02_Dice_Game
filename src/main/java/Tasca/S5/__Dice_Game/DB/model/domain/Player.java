@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,7 +25,10 @@ public class Player {
     private LocalDate registrationDate;
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Game> games;
+    private List<Game> games = new ArrayList<>();
 
-
+    @PrePersist
+    protected void onCreate() {
+        this.registrationDate = LocalDate.now();
+    }
 }

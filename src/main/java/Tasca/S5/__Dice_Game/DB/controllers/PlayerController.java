@@ -20,8 +20,8 @@ public class PlayerController {
     }
 
     @PutMapping("/{id}")
-    public PlayerDTO updatePlayerName(@PathVariable Long id, @RequestBody String name) {
-        return playerService.updatePlayerName(id, name);
+    public PlayerDTO updatePlayerName(@PathVariable Long id, @RequestBody PlayerDTO playerDTO) {
+        return playerService.updatePlayerName(id, playerDTO);
     }
 
     @GetMapping

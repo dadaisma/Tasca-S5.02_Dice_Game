@@ -8,7 +8,9 @@ public interface PlayerService {
 
     PlayerDTO createPlayer(PlayerDTO playerDTO);
 
-    PlayerDTO updatePlayerName(Long id, String name);
+
+
+    PlayerDTO updatePlayerName(Long id, PlayerDTO playerDTO);
 
     void deletePlayerGames(Long playerId);
 
