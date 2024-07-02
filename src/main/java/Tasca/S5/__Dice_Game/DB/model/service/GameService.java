@@ -11,7 +11,7 @@ public interface GameService {
 
     List<GameDTO> getGamesByPlayerId(Long playerId);
 
-    void deletePlayerGames(Long playerId);
+  //  void deletePlayerGames(Long playerId);
 
     List<GameDTO> getAllGameDtos();
 }

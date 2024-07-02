@@ -51,7 +51,7 @@ public class GameServiceImp implements GameService {
         }
         return null;
     }
-
+/*
     @Override
     public void deletePlayerGames(Long playerId) {
         Optional<Player> playerOpt = playerRepository.findById(playerId);
@@ -61,7 +61,7 @@ public class GameServiceImp implements GameService {
             playerRepository.save(player);
         }
     }
-
+*/
     @Override
     public List<GameDTO> getAllGameDtos() {
         return gameRepository.findAll().stream()

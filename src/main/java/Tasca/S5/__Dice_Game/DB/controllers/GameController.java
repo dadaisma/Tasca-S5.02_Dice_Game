@@ -24,8 +24,8 @@ public class GameController {
         return gameService.getGamesByPlayerId(playerId);
     }
 
-    @DeleteMapping
-    public void deletePlayerGames(@PathVariable Long playerId) {
-        gameService.deletePlayerGames(playerId);
-    }
+  //  @DeleteMapping
+  //  public void deletePlayerGames(@PathVariable Long playerId) {
+   //     gameService.deletePlayerGames(playerId);
+  //  }
 }
