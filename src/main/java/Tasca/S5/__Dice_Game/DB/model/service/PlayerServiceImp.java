@@ -5,6 +5,7 @@ import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,7 +27,12 @@ public class PlayerServiceImp implements PlayerService {
         try {
             Player savedPlayer = playerRepository.save(player);
             return new PlayerDTO(savedPlayer.getId(), savedPlayer.getName(), savedPlayer.getRegistrationDate(), calculateSuccessRate(savedPlayer));
+        } catch (DataIntegrityViolationException e) {
+            // Handle unique constraint violation (duplicate name)
+            e.printStackTrace(); // Log the exception
+            throw new IllegalArgumentException("Player name must be unique");
         } catch (Exception e) {
+            // Handle other exceptions
             e.printStackTrace(); // Log the exception
             throw new RuntimeException("Failed to create player: " + e.getMessage());
         }
