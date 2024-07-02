@@ -28,6 +28,11 @@ public class Player {
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Game> games = new ArrayList<>();
 
+    public Player(String name) {
+        this.name = name;
+    }
+
+
     @PrePersist
     protected void onCreate() {
         this.registrationDate = LocalDate.now();

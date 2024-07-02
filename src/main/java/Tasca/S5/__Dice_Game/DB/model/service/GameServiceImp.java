@@ -6,6 +6,7 @@ import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import Tasca.S5.__Dice_Game.DB.model.repository.GameRepository;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
 import Tasca.S5.__Dice_Game.DB.model.service.GameService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,16 @@ public class GameServiceImp implements GameService {
 
     @Override
     public GameDTO createGame(Long playerId) {
+        if (playerId == null) {
+            throw new IllegalArgumentException("Player ID cannot be null");
+        }
+
         Optional<Player> playerOpt = playerRepository.findById(playerId);
+
+        if (playerOpt.isEmpty()) {
+            throw new EntityNotFoundException("Create Game Failed: Player with ID " + playerId + " not found in database");
+        }
+
         if (playerOpt.isPresent()) {
             Player player = playerOpt.get();
             Game game = new Game();

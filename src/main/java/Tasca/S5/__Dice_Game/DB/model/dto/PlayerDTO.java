@@ -1,8 +1,12 @@
 package Tasca.S5.__Dice_Game.DB.model.dto;
 
+import Tasca.S5.__Dice_Game.DB.model.domain.Game;
+import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,5 +21,26 @@ public class PlayerDTO {
     private LocalDate registrationDate;
     private double successRate;
 
+
+    public PlayerDTO(String name) {
+        this.name = (name != null && !name.isEmpty()) ? name : "ANÒNIM";
+        this.registrationDate = LocalDate.now();
+        this.successRate = 0.0;
+    }
+
+    public PlayerDTO(Player player) {
+        this.id = player.getId();
+        this.name = player.getName();
+        this.registrationDate = player.getRegistrationDate();
+        this.successRate = calculateSuccessRate(player);
+    }
+
+    private double calculateSuccessRate(Player player) {
+        List<Game> games = player.getGames() != null ? player.getGames() : Collections.emptyList();
+
+        long totalGames = player.getGames().size();
+        long wonGames = player.getGames().stream().filter(Game::isWon).count();
+        return totalGames == 0 ? 0 : (double) wonGames / totalGames * 100;
+    }
 
 }

@@ -8,32 +8,38 @@ import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.Collections;
+import org.springframework.transaction.annotation.Transactional;
+
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class PlayerServiceImp implements PlayerService {
+@Transactional
+public class PlayerServiceImpl implements PlayerService {
+
+    private final PlayerRepository playerRepository;
 
     @Autowired
-    private PlayerRepository playerRepository;
+    public PlayerServiceImpl(PlayerRepository playerRepository) {
+        this.playerRepository = playerRepository;
+    }
+
 
     @Override
     public PlayerDTO createPlayer(PlayerDTO playerDTO) {
-        String name = (playerDTO.getName() != null && !playerDTO.getName().isEmpty()) ? playerDTO.getName() : "ANÒNIM";
 
-            if (!name.equals("ANÒNIM") && playerRepository.findByName(name).isPresent()) {
-            throw new EntityExistsException("Create new Player Failed: Invalid Player name: " + name + " -> ALREADY EXISTS in DataBase");
+        Player player = new Player(playerDTO.getName());
+
+        if (!player.getName().equals("ANÒNIM") && playerRepository.findByName(player.getName()).isPresent()) {
+            throw new EntityExistsException("Create new Player Failed: Invalid Player name: " + player.getName() + " -> ALREADY EXISTS in DataBase");
         }
-
-        Player player = new Player();
-        player.setName(name);
 
         try {
             Player savedPlayer = playerRepository.save(player);
-            return new PlayerDTO(savedPlayer.getId(), savedPlayer.getName(), savedPlayer.getRegistrationDate(), calculateSuccessRate(savedPlayer));
+            return new PlayerDTO(savedPlayer);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to create player: " + e.getMessage());
@@ -41,19 +47,17 @@ public class PlayerServiceImp implements PlayerService {
     }
     @Override
     public PlayerDTO updatePlayerName(Long id, PlayerDTO playerDTO) {
-        if(!playerRepository.findById(id).isPresent()){
-            throw new EntityNotFoundException("Update Player Failed: Invalid fruit id: "+ id +
+        Optional<Player> playerOpt = playerRepository.findById(id);
+        if (playerOpt.isEmpty()) {
+            throw new EntityNotFoundException("Update Player Failed: Invalid player id: " + id +
                     " -> DOESN'T EXIST in DataBase");
         }
-        Optional<Player> playerOpt = playerRepository.findById(id);
-        if (playerOpt.isPresent()) {
-            Player player = playerOpt.get();
-            player.setName(playerDTO.getName());
 
-            Player updatedPlayer = playerRepository.save(player);
-            return new PlayerDTO(updatedPlayer.getId(), updatedPlayer.getName(), updatedPlayer.getRegistrationDate(), calculateSuccessRate(updatedPlayer));
-        }
-        return null;
+        Player player = playerOpt.get();
+        player.setName(playerDTO.getName());
+
+        Player updatedPlayer = playerRepository.save(player);
+        return new PlayerDTO(updatedPlayer);
     }
 
     @Override
@@ -72,26 +76,21 @@ public class PlayerServiceImp implements PlayerService {
 
     @Override
     public PlayerDTO getPlayerById(Long id) {
-        Optional<Player> playerOpt = playerRepository.findById(id);
-        return playerOpt.map(player -> new PlayerDTO(player.getId(), player.getName(), player.getRegistrationDate(), calculateSuccessRate(player)))
+        Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Get One Player Failed: Invalid player id: " + id +
-                " -> DOESN'T EXIST in DataBase"));
+                        " -> DOESN'T EXIST in DataBase"));
+
+        return new PlayerDTO(player);
     }
 
     @Override
     public List<PlayerDTO> getAllPlayers() {
         return playerRepository.findAll().stream()
-                .map(player -> new PlayerDTO(player.getId(), player.getName(), player.getRegistrationDate(), calculateSuccessRate(player)))
+                .map(PlayerDTO::new)
                 .collect(Collectors.toList());
     }
 
-    private double calculateSuccessRate(Player player) {
-        List<Game> games = player.getGames() != null ? player.getGames() : Collections.emptyList();
 
-        long totalGames = player.getGames().size();
-        long wonGames = player.getGames().stream().filter(Game::isWon).count();
-        return totalGames == 0 ? 0 : (double) wonGames / totalGames * 100;
-    }
 
     @Override
     public double getAverageSuccessRate() {
@@ -101,7 +100,7 @@ public class PlayerServiceImp implements PlayerService {
         }
 
         double totalSuccessRate = players.stream()
-                .mapToDouble(this::calculateSuccessRate)
+                .mapToDouble(player -> new PlayerDTO(player).getSuccessRate())
                 .sum();
 
         return totalSuccessRate / players.size();
@@ -115,10 +114,10 @@ public class PlayerServiceImp implements PlayerService {
         }
 
         Player playerWithLowestSuccessRate = players.stream()
-                .min(Comparator.comparingDouble(this::calculateSuccessRate))
+                .min(Comparator.comparingDouble(player -> new PlayerDTO(player).getSuccessRate()))
                 .orElse(null);
 
-        return convertToPlayerDTO(playerWithLowestSuccessRate);
+        return new PlayerDTO(playerWithLowestSuccessRate);
     }
 
     @Override
@@ -129,16 +128,10 @@ public class PlayerServiceImp implements PlayerService {
         }
 
         Player playerWithHighestSuccessRate = players.stream()
-                .max(Comparator.comparingDouble(this::calculateSuccessRate))
+                .max(Comparator.comparingDouble(player -> new PlayerDTO(player).getSuccessRate()))
                 .orElse(null);
 
-        return convertToPlayerDTO(playerWithHighestSuccessRate);
+        return new PlayerDTO(playerWithHighestSuccessRate);
     }
 
-    private PlayerDTO convertToPlayerDTO(Player player) {
-        if (player == null) {
-            return null;
-        }
-        return new PlayerDTO(player.getId(), player.getName(), player.getRegistrationDate(), calculateSuccessRate(player));
-    }
 }
