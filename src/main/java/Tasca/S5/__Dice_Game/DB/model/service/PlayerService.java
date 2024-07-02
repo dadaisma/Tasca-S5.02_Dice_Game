@@ -6,16 +6,13 @@ import java.util.List;
 
 public interface PlayerService {
 
-    void createPlayer(PlayerDTO playerDTO);
+    PlayerDTO createPlayer(PlayerDTO playerDTO);
 
-
-    void updatePlayerName(PlayerDTO playerDTO);
+    PlayerDTO updatePlayerName(Long id, String name);
 
     void deletePlayerGames(Long playerId);
 
     PlayerDTO getPlayerById(Long id);
-
-
 
     List<PlayerDTO> getAllPlayers();
 }

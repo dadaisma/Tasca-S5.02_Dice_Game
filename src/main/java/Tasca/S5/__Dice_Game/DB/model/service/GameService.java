@@ -7,12 +7,11 @@ import java.util.List;
 
 public interface GameService {
 
-    void createGame(GameDTO gameDTO);
+    GameDTO createGame(Long playerId);
 
-    GameDTO getGamesByPlayerId(Long id);
+    List<GameDTO> getGamesByPlayerId(Long playerId);
 
+    void deletePlayerGames(Long playerId);
 
-
-    List<GameDTO> getAllGameDtos ();
-
+    List<GameDTO> getAllGameDtos();
 }
