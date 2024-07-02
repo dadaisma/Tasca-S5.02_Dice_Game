@@ -21,7 +21,7 @@ public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)
+   // @Column(unique = true)
     private String name;
     private LocalDate registrationDate;
 

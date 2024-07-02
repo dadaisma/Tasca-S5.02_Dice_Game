@@ -4,8 +4,9 @@ import Tasca.S5.__Dice_Game.DB.model.domain.Game;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.Comparator;
@@ -21,25 +22,29 @@ public class PlayerServiceImp implements PlayerService {
 
     @Override
     public PlayerDTO createPlayer(PlayerDTO playerDTO) {
+        String name = (playerDTO.getName() != null && !playerDTO.getName().isEmpty()) ? playerDTO.getName() : "ANÒNIM";
+
+            if (!name.equals("ANÒNIM") && playerRepository.findByName(name).isPresent()) {
+            throw new EntityExistsException("Create new Player Failed: Invalid Player name: " + name + " -> ALREADY EXISTS in DataBase");
+        }
+
         Player player = new Player();
-        player.setName(playerDTO.getName() != null && !playerDTO.getName().isEmpty() ? playerDTO.getName() : "ANÒNIM");
+        player.setName(name);
 
         try {
             Player savedPlayer = playerRepository.save(player);
             return new PlayerDTO(savedPlayer.getId(), savedPlayer.getName(), savedPlayer.getRegistrationDate(), calculateSuccessRate(savedPlayer));
-        } catch (DataIntegrityViolationException e) {
-            // Handle unique constraint violation (duplicate name)
-            e.printStackTrace(); // Log the exception
-            throw new IllegalArgumentException("Player name must be unique");
         } catch (Exception e) {
-            // Handle other exceptions
-            e.printStackTrace(); // Log the exception
+            e.printStackTrace();
             throw new RuntimeException("Failed to create player: " + e.getMessage());
         }
     }
-
     @Override
     public PlayerDTO updatePlayerName(Long id, PlayerDTO playerDTO) {
+        if(!playerRepository.findById(id).isPresent()){
+            throw new EntityNotFoundException("Update Player Failed: Invalid fruit id: "+ id +
+                    " -> DOESN'T EXIST in DataBase");
+        }
         Optional<Player> playerOpt = playerRepository.findById(id);
         if (playerOpt.isPresent()) {
             Player player = playerOpt.get();
@@ -53,6 +58,10 @@ public class PlayerServiceImp implements PlayerService {
 
     @Override
     public void deletePlayerGames(Long playerId) {
+        if(!playerRepository.findById(playerId).isPresent()){
+            throw new EntityNotFoundException("Delete Player Failed: Invalid player id: "+ playerId+
+                    " -> DOESN'T EXIST in DataBase");
+        }
         Optional<Player> playerOpt = playerRepository.findById(playerId);
         if (playerOpt.isPresent()) {
             Player player = playerOpt.get();
@@ -64,7 +73,9 @@ public class PlayerServiceImp implements PlayerService {
     @Override
     public PlayerDTO getPlayerById(Long id) {
         Optional<Player> playerOpt = playerRepository.findById(id);
-        return playerOpt.map(player -> new PlayerDTO(player.getId(), player.getName(), player.getRegistrationDate(), calculateSuccessRate(player))).orElse(null);
+        return playerOpt.map(player -> new PlayerDTO(player.getId(), player.getName(), player.getRegistrationDate(), calculateSuccessRate(player)))
+                .orElseThrow(() -> new EntityNotFoundException("Get One Player Failed: Invalid player id: " + id +
+                " -> DOESN'T EXIST in DataBase"));
     }
 
     @Override
