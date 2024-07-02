@@ -93,17 +93,22 @@ public class PlayerServiceImpl implements PlayerService {
 
 
     @Override
-    public double getAverageSuccessRate() {
+    public String getAverageSuccessRate() {
         List<Player> players = playerRepository.findAll();
         if (players.isEmpty()) {
-            return 0.0;
+            return "No players found.";
         }
 
         double totalSuccessRate = players.stream()
                 .mapToDouble(player -> new PlayerDTO(player).getSuccessRate())
                 .sum();
 
-        return totalSuccessRate / players.size();
+        double averageSuccessRate = totalSuccessRate / players.size();
+        long totalGamesPlayed = players.stream()
+                .mapToLong(player -> new PlayerDTO(player).getTotalPlayedGames())
+                .sum();
+
+        return "The success rate is " + averageSuccessRate + " % on an overall of games played of " + totalGamesPlayed;
     }
 
     @Override

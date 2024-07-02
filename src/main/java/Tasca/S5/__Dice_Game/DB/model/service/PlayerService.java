@@ -16,9 +16,11 @@ public interface PlayerService {
 
     List<PlayerDTO> getAllPlayers();
 
-    double getAverageSuccessRate();
+   // double getAverageSuccessRate();
 
     PlayerDTO getPlayerWithLowestSuccessRate();
 
     PlayerDTO getPlayerWithHighestSuccessRate();
+
+    String getAverageSuccessRate();
 }

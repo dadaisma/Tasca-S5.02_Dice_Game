@@ -40,7 +40,7 @@ public class PlayerController {
     }
 
     @GetMapping("/ranking")
-    public double getAverageSuccessRate() {
+    public String getAverageSuccessRate() {
         return playerService.getAverageSuccessRate();
     }
 

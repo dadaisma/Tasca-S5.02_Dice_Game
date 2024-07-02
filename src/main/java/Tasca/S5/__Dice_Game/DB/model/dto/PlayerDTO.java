@@ -21,12 +21,14 @@ public class PlayerDTO {
     private LocalDate registrationDate;
     private double successRate;
     private long totalPlayedGames;
+    private long totalPlayedGamesOverall;
 
 
     public PlayerDTO(String name) {
         this.name = (name != null && !name.isEmpty()) ? name : "ANÒNIM";
         this.registrationDate = LocalDate.now();
         this.successRate = 0.0;
+        this.totalPlayedGamesOverall = 0;
     }
 
     public PlayerDTO(Player player) {
@@ -35,6 +37,7 @@ public class PlayerDTO {
         this.registrationDate = player.getRegistrationDate();
         this.successRate = calculateSuccessRate(player);
         this.totalPlayedGames = player.getGames().size();
+        this.totalPlayedGamesOverall = getTotalPlayedGames(player);
     }
 
     private double calculateSuccessRate(Player player) {
@@ -44,7 +47,10 @@ public class PlayerDTO {
         long wonGames = player.getGames().stream().filter(Game::isWon).count();
         return totalGames == 0 ? 0 : (double) wonGames / totalGames * 100;
     }
-
+    private long getTotalPlayedGames(Player player) {
+        List<Game> games = player.getGames() != null ? player.getGames() : Collections.emptyList();
+        return games.size();
+    }
 
 
 }
