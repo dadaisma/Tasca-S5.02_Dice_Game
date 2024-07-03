@@ -32,7 +32,9 @@ public class PlayerServiceImpl implements PlayerService {
     public PlayerDTO createPlayer(PlayerDTO playerDTO) {
 
         Player player = new Player(playerDTO.getName());
-
+        if(player.getName()==""){
+        player.setName("ANÒNIM");
+        }
         if (!player.getName().equals("ANÒNIM") && playerRepository.findByName(player.getName()).isPresent()) {
             throw new EntityExistsException("Create new Player Failed: Invalid Player name: " + player.getName() + " -> ALREADY EXISTS in DataBase");
         }
