@@ -16,4 +16,5 @@ public class GameDTO {
     private int die2;
     private boolean won;
 
+
 }

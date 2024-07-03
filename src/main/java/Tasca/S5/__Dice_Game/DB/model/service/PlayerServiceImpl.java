@@ -1,15 +1,14 @@
 package Tasca.S5.__Dice_Game.DB.model.service;
 
-import Tasca.S5.__Dice_Game.DB.model.domain.Game;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.Comparator;
 import java.util.List;
@@ -27,60 +26,75 @@ public class PlayerServiceImpl implements PlayerService {
         this.playerRepository = playerRepository;
     }
 
-
     @Override
     public PlayerDTO createPlayer(PlayerDTO playerDTO) {
+        // Create a new Player entity from the provided PlayerDTO
+        Player player = new Player(playerDTO.getName(), playerDTO.getEmail(), playerDTO.getPassword());
 
-        Player player = new Player(playerDTO.getName());
-        if(player.getName()==""){
-        player.setName("ANÒNIM");
+        // Set default name if the provided name is empty
+        if (player.getName() == null || player.getName().isEmpty()) {
+            player.setName("ANÒNIM");
         }
+
+        // Check if a player with the same name already exists (excluding "ANÒNIM")
         if (!player.getName().equals("ANÒNIM") && playerRepository.findByName(player.getName()).isPresent()) {
             throw new EntityExistsException("Create new Player Failed: Invalid Player name: " + player.getName() + " -> ALREADY EXISTS in DataBase");
         }
 
+        // Check if a player with the same email already exists
+        if (playerRepository.findByEmail(player.getEmail()).isPresent()) {
+            throw new EntityExistsException("Create new Player Failed: Invalid email: " + player.getEmail() + " -> ALREADY EXISTS in DataBase");
+        }
+
         try {
+            // Save the new player to the repository
             Player savedPlayer = playerRepository.save(player);
+
+            // Create and return a PlayerDTO from the saved Player entity
             return new PlayerDTO(savedPlayer);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Failed to create player: " + e.getMessage());
+            // Handle any exceptions that occur during the save operation
+            throw new RuntimeException("Failed to create player: " + e.getMessage(), e);
         }
     }
+
     @Override
-    public PlayerDTO updatePlayerName(Long id, PlayerDTO playerDTO) {
-        Optional<Player> playerOpt = playerRepository.findById(id);
-        if (playerOpt.isEmpty()) {
-            throw new EntityNotFoundException("Update Player Failed: Invalid player id: " + id +
-                    " -> DOESN'T EXIST in DataBase");
+    public PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO) {
+        Player player = playerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Update Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
+
+        if (StringUtils.isEmpty(playerDTO.getName())) {
+            throw new IllegalArgumentException("Name cannot be empty");
+        }
+        if (StringUtils.isEmpty(playerDTO.getEmail())) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        if (StringUtils.isEmpty(playerDTO.getPassword())) {
+            throw new IllegalArgumentException("Password cannot be empty");
         }
 
-        Player player = playerOpt.get();
-        player.setName(playerDTO.getName());
 
+
+        player.setName(playerDTO.getName());
+        player.setEmail(playerDTO.getEmail());
+        player.setPassword(playerDTO.getPassword());
         Player updatedPlayer = playerRepository.save(player);
         return new PlayerDTO(updatedPlayer);
     }
 
     @Override
-    public void deletePlayerGames(Long playerId) {
-        if(!playerRepository.findById(playerId).isPresent()){
-            throw new EntityNotFoundException("Delete Player Failed: Invalid player id: "+ playerId+
-                    " -> DOESN'T EXIST in DataBase");
-        }
-        Optional<Player> playerOpt = playerRepository.findById(playerId);
-        if (playerOpt.isPresent()) {
-            Player player = playerOpt.get();
-            player.getGames().clear();
-            playerRepository.save(player);
-        }
+    public void deletePlayerGames(String playerId) {
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new EntityNotFoundException("Delete Player Failed: Invalid player id: " + playerId + " -> DOESN'T EXIST in DataBase"));
+
+        player.getGames().clear();
+        playerRepository.save(player);
     }
 
     @Override
-    public PlayerDTO getPlayerById(Long id) {
+    public PlayerDTO getPlayerById(String id) {
         Player player = playerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Get One Player Failed: Invalid player id: " + id +
-                        " -> DOESN'T EXIST in DataBase"));
+                .orElseThrow(() -> new EntityNotFoundException("Get One Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
 
         return new PlayerDTO(player);
     }
@@ -91,8 +105,6 @@ public class PlayerServiceImpl implements PlayerService {
                 .map(PlayerDTO::new)
                 .collect(Collectors.toList());
     }
-
-
 
     @Override
     public String getAverageSuccessRate() {
@@ -110,37 +122,22 @@ public class PlayerServiceImpl implements PlayerService {
                 .mapToLong(player -> new PlayerDTO(player).getTotalPlayedGames())
                 .sum();
 
-
-            return String.format("The success rate is %.2f %% on an overall of games played of %d", averageSuccessRate, totalGamesPlayed);
-
+        return String.format("The success rate is %.2f %% on an overall of games played of %d", averageSuccessRate, totalGamesPlayed);
     }
 
     @Override
     public PlayerDTO getPlayerWithLowestSuccessRate() {
-        List<Player> players = playerRepository.findAll();
-        if (players.isEmpty()) {
-            return null;
-        }
-
-        Player playerWithLowestSuccessRate = players.stream()
+        return playerRepository.findAll().stream()
                 .min(Comparator.comparingDouble(player -> new PlayerDTO(player).getSuccessRate()))
+                .map(PlayerDTO::new)
                 .orElse(null);
-
-        return new PlayerDTO(playerWithLowestSuccessRate);
     }
 
     @Override
     public PlayerDTO getPlayerWithHighestSuccessRate() {
-        List<Player> players = playerRepository.findAll();
-        if (players.isEmpty()) {
-            return null;
-        }
-
-        Player playerWithHighestSuccessRate = players.stream()
+        return playerRepository.findAll().stream()
                 .max(Comparator.comparingDouble(player -> new PlayerDTO(player).getSuccessRate()))
+                .map(PlayerDTO::new)
                 .orElse(null);
-
-        return new PlayerDTO(playerWithHighestSuccessRate);
     }
-
 }

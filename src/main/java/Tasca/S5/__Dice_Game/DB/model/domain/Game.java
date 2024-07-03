@@ -22,9 +22,8 @@ public class Game {
     private int die2;
     private boolean won;
 
-    @ManyToOne
-    @JoinColumn(name = "player_id")
-    private Player player;
+    @Column(name = "player_id")
+    private String playerId;
 
 
 }

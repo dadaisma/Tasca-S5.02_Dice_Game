@@ -5,7 +5,6 @@ import Tasca.S5.__Dice_Game.DB.model.domain.Game;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import Tasca.S5.__Dice_Game.DB.model.repository.GameRepository;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
-import Tasca.S5.__Dice_Game.DB.model.service.GameService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ public class GameServiceImp implements GameService {
     private final Random random = new Random();
 
     @Override
-    public GameDTO createGame(Long playerId) {
+    public GameDTO createGame(String playerId) {
         if (playerId == null) {
             throw new IllegalArgumentException("Player ID cannot be null");
         }
@@ -38,44 +37,52 @@ public class GameServiceImp implements GameService {
             throw new EntityNotFoundException("Create Game Failed: Player with ID " + playerId + " not found in database");
         }
 
-        if (playerOpt.isPresent()) {
-            Player player = playerOpt.get();
-            Game game = new Game();
-            game.setDie1(random.nextInt(6) + 1);
-            game.setDie2(random.nextInt(6) + 1);
-            game.setWon(game.getDie1() + game.getDie2() == 7);
-            game.setPlayer(player);
-            Game savedGame = gameRepository.save(game);
-            return new GameDTO(savedGame.getId(), savedGame.getDie1(), savedGame.getDie2(), savedGame.isWon());
-        }
-        return null;
+        Player player = playerOpt.get();
+        Game game = new Game();
+        game.setDie1(random.nextInt(6) + 1);
+        game.setDie2(random.nextInt(6) + 1);
+        game.setWon(game.getDie1() + game.getDie2() == 7);
+        game.setPlayerId(player.getId());
+        Game savedGame = gameRepository.save(game);
+        return new GameDTO(savedGame.getId(), savedGame.getDie1(), savedGame.getDie2(), savedGame.isWon());
     }
 
     @Override
-    public List<GameDTO> getGamesByPlayerId(Long playerId) {
+    public List<GameDTO> getGamesByPlayerId(String playerId) {
         Optional<Player> playerOpt = playerRepository.findById(playerId);
         if (playerOpt.isPresent()) {
             return playerOpt.get().getGames().stream()
                     .map(game -> new GameDTO(game.getId(), game.getDie1(), game.getDie2(), game.isWon()))
                     .collect(Collectors.toList());
         }
-        return null;
+        throw new EntityNotFoundException("Player with ID " + playerId + " not found in database");
     }
-/*
-    @Override
-    public void deletePlayerGames(Long playerId) {
-        Optional<Player> playerOpt = playerRepository.findById(playerId);
-        if (playerOpt.isPresent()) {
-            Player player = playerOpt.get();
-            player.getGames().clear();
-            playerRepository.save(player);
-        }
-    }
-*/
+
     @Override
     public List<GameDTO> getAllGameDtos() {
         return gameRepository.findAll().stream()
                 .map(game -> new GameDTO(game.getId(), game.getDie1(), game.getDie2(), game.isWon()))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void updatePlayerGamesInMongoDB(String playerId) {
+        Optional<Player> playerOpt = playerRepository.findById(playerId);
+        if (playerOpt.isPresent()) {
+            Player player = playerOpt.get();
+
+            Optional<List<Game>> gamesOpt = gameRepository.findByPlayerId(playerId);
+            if (gamesOpt.isPresent()) {
+                List<Game> games = gamesOpt.get();
+                player.setGames(games); // Update player's games array
+                playerRepository.save(player); // Save updated player document in MongoDB
+            } else {
+                // Handle case where no games are found for the player
+                throw new EntityNotFoundException("No games found for player with ID " + playerId);
+            }
+        } else {
+            throw new EntityNotFoundException("Player with ID " + playerId + " not found in MongoDB");
+        }
+    }
+
 }

@@ -8,11 +8,11 @@ public interface PlayerService {
 
     PlayerDTO createPlayer(PlayerDTO playerDTO);
 
-    PlayerDTO updatePlayerName(Long id, PlayerDTO playerDTO);
+    PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO);
 
-    void deletePlayerGames(Long playerId);
+    void deletePlayerGames(String playerId);
 
-    PlayerDTO getPlayerById(Long id);
+    PlayerDTO getPlayerById(String id);
 
     List<PlayerDTO> getAllPlayers();
 

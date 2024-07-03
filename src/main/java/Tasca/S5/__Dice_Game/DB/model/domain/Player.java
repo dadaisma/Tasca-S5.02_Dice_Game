@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,26 +16,28 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-@Entity
+
+@Document(collection = "player")
 public class Player {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-   // @Column(unique = true)
+    private String id;
     private String name;
     private LocalDate registrationDate;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
+    private String email;
+    private String password;
+
+
     private List<Game> games = new ArrayList<>();
 
-    public Player(String name) {
+    public Player(String name, String email, String password) {
         this.name = name;
-    }
-
-
-    @PrePersist
-    protected void onCreate() {
+        this.email = email;
+        this.password = password;
         this.registrationDate = LocalDate.now();
     }
+
+
+
 }

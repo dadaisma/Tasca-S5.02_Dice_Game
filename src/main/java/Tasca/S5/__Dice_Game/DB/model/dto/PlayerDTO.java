@@ -5,7 +5,6 @@ import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -19,8 +18,11 @@ import java.util.Locale;
 
 public class PlayerDTO {
 
-    private Long id;
+    private String id;
+
     private String name;
+    private String email;
+    private String password;
     private LocalDate registrationDate;
     @JsonIgnore
     private double successRate;
@@ -29,20 +31,25 @@ public class PlayerDTO {
  //   private long totalPlayedGamesOverall;
 
 
-    public PlayerDTO(String name) {
+    public PlayerDTO(String name, String email, String password) {
+
         this.name = (name != null && !name.isEmpty()) ? name : "ANÒNIM";
-        this.registrationDate = LocalDate.now();
-       this.successRate = 0.0;
+        this.successRate = 0.0;
+        this.email = email;
+        this.password = password;
 
  //       this.totalPlayedGamesOverall = 0;
     }
 
     public PlayerDTO(Player player) {
         this.id = player.getId();
+
         this.name = player.getName();
         this.registrationDate = player.getRegistrationDate();
         this.successRate = roundToTwoDecimalPlaces(calculateSuccessRate(player)) ;
         this.totalPlayedGames = player.getGames().size();
+        this.email = player.getEmail();
+        this.password = player.getPassword();
 
        // this.totalPlayedGamesOverall = getTotalPlayedGames(player);
     }

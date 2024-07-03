@@ -20,7 +20,7 @@ public class PlayerController {
     }
 
     @PutMapping("/{id}")
-    public PlayerDTO updatePlayerName(@PathVariable Long id, @RequestBody PlayerDTO playerDTO) {
+    public PlayerDTO updatePlayerName(@PathVariable String id, @RequestBody PlayerDTO playerDTO) {
         return playerService.updatePlayerName(id, playerDTO);
     }
 
@@ -30,12 +30,12 @@ public class PlayerController {
     }
 
     @DeleteMapping("/{id}/games")
-    public void deletePlayerGames(@PathVariable Long id) {
+    public void deletePlayerGames(@PathVariable String id) {
         playerService.deletePlayerGames(id);
     }
 
     @GetMapping("/{id}")
-    public PlayerDTO getPlayerById(@PathVariable Long id) {
+    public PlayerDTO getPlayerById(@PathVariable String id) {
         return playerService.getPlayerById(id);
     }
 

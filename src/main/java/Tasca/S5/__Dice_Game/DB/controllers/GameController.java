@@ -15,12 +15,18 @@ public class GameController {
     private GameService gameService;
 
     @PostMapping
-    public GameDTO createGame(@PathVariable Long playerId) {
-        return gameService.createGame(playerId);
+    public GameDTO createGame(@PathVariable String playerId) {
+        // Create game in MySQL
+        GameDTO gameDTO = gameService.createGame(playerId);
+
+        // Update player's games array in MongoDB
+        gameService.updatePlayerGamesInMongoDB(playerId);
+
+        return gameDTO;
     }
 
     @GetMapping
-    public List<GameDTO> getGamesByPlayerId(@PathVariable Long playerId) {
+    public List<GameDTO> getGamesByPlayerId(@PathVariable String playerId) {
         return gameService.getGamesByPlayerId(playerId);
     }
 
