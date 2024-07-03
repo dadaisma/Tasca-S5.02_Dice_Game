@@ -110,7 +110,9 @@ public class PlayerServiceImpl implements PlayerService {
                 .mapToLong(player -> new PlayerDTO(player).getTotalPlayedGames())
                 .sum();
 
-        return "The success rate is " + averageSuccessRate + " % on an overall of games played of " + totalGamesPlayed;
+
+            return String.format("The success rate is %.2f %% on an overall of games played of %d", averageSuccessRate, totalGamesPlayed);
+
     }
 
     @Override

@@ -4,9 +4,11 @@ import Tasca.S5.__Dice_Game.DB.model.domain.Game;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import lombok.*;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,23 +23,23 @@ public class PlayerDTO {
     private LocalDate registrationDate;
     private double successRate;
     private long totalPlayedGames;
-    private long totalPlayedGamesOverall;
+ //   private long totalPlayedGamesOverall;
 
 
     public PlayerDTO(String name) {
         this.name = (name != null && !name.isEmpty()) ? name : "ANÒNIM";
         this.registrationDate = LocalDate.now();
         this.successRate = 0.0;
-        this.totalPlayedGamesOverall = 0;
+ //       this.totalPlayedGamesOverall = 0;
     }
 
     public PlayerDTO(Player player) {
         this.id = player.getId();
         this.name = player.getName();
         this.registrationDate = player.getRegistrationDate();
-        this.successRate = calculateSuccessRate(player);
+        this.successRate = roundToTwoDecimalPlaces(calculateSuccessRate(player));
         this.totalPlayedGames = player.getGames().size();
-        this.totalPlayedGamesOverall = getTotalPlayedGames(player);
+       // this.totalPlayedGamesOverall = getTotalPlayedGames(player);
     }
 
     private double calculateSuccessRate(Player player) {
@@ -52,5 +54,8 @@ public class PlayerDTO {
         return games.size();
     }
 
+    private double roundToTwoDecimalPlaces(double value) {
+        return Double.parseDouble(String.format(Locale.US, "%.2f", value));
+    }
 
 }
