@@ -2,6 +2,7 @@ package Tasca.S5.__Dice_Game.DB.model.dto;
 
 import Tasca.S5.__Dice_Game.DB.model.domain.Game;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.text.DecimalFormat;
@@ -21,7 +22,9 @@ public class PlayerDTO {
     private Long id;
     private String name;
     private LocalDate registrationDate;
+    @JsonIgnore
     private double successRate;
+
     private long totalPlayedGames;
  //   private long totalPlayedGamesOverall;
 
@@ -29,7 +32,8 @@ public class PlayerDTO {
     public PlayerDTO(String name) {
         this.name = (name != null && !name.isEmpty()) ? name : "ANÒNIM";
         this.registrationDate = LocalDate.now();
-        this.successRate = 0.0;
+       this.successRate = 0.0;
+
  //       this.totalPlayedGamesOverall = 0;
     }
 
@@ -37,8 +41,9 @@ public class PlayerDTO {
         this.id = player.getId();
         this.name = player.getName();
         this.registrationDate = player.getRegistrationDate();
-        this.successRate = roundToTwoDecimalPlaces(calculateSuccessRate(player));
+        this.successRate = roundToTwoDecimalPlaces(calculateSuccessRate(player)) ;
         this.totalPlayedGames = player.getGames().size();
+
        // this.totalPlayedGamesOverall = getTotalPlayedGames(player);
     }
 
@@ -55,7 +60,10 @@ public class PlayerDTO {
     }
 
     private double roundToTwoDecimalPlaces(double value) {
-        return Double.parseDouble(String.format(Locale.US, "%.2f", value));
+        return Double.parseDouble(String.format(Locale.US, "%.2f ", value )) ;
     }
 
+    public String getSuccess_Rate() {
+        return String.format(Locale.US, "%.2f %%", successRate);
+    }
 }
