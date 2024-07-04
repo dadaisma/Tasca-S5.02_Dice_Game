@@ -167,19 +167,11 @@ public class PlayerServiceImpl implements PlayerService {
         return totalGames == 0 ? 0 : (double) wonGames / totalGames * 100;
     }
 
-
-    private long calculateTotalPlayedGames(String playerId) {
+    @Override
+    public long calculateTotalPlayedGames(String playerId) {
         return gameRepository.countByPlayerId(playerId);
     }
 
-
-    @Override
-    public long totalPlayedGames() {
-        List<Player> players = playerRepository.findAll();
-        return players.stream()
-                .mapToLong(player -> gameRepository.countByPlayerId(player.getId()))
-                .sum();
-    }
 
     @Override
     public PlayerDTO getPlayerWithLowestSuccessRate() {

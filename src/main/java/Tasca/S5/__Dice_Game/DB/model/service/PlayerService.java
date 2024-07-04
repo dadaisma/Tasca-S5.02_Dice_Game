@@ -17,7 +17,7 @@ public interface PlayerService {
 
     String getAverageSuccessRate();
 
-    long totalPlayedGames();
+    long calculateTotalPlayedGames(String playerId);
 
     PlayerDTO getPlayerWithLowestSuccessRate();
 
