@@ -20,7 +20,7 @@ public class PlayerDTO {
     private String password;
     private LocalDate registrationDate;
     private Role role;
-    @Setter
+
     private String successRate;
     @Setter
     private long totalPlayedGames;
