@@ -9,18 +9,15 @@ public interface PlayerService {
     PlayerDTO createPlayer(PlayerDTO playerDTO);
 
     PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO);
-
-
-
-
-
     List<PlayerDTO> getAllPlayers();
+
+    PlayerDTO getPlayerById(String id);
 
    // double getAverageSuccessRate();
 
-    PlayerDTO getPlayerWithLowestSuccessRate();
+   // PlayerDTO getPlayerWithLowestSuccessRate();
 
-    PlayerDTO getPlayerWithHighestSuccessRate();
+ //   PlayerDTO getPlayerWithHighestSuccessRate();
 
-    String getAverageSuccessRate();
+ //   String getAverageSuccessRate();
 }

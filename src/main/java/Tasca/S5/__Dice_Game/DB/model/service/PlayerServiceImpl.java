@@ -1,7 +1,9 @@
 package Tasca.S5.__Dice_Game.DB.model.service;
 
+import Tasca.S5.__Dice_Game.DB.model.domain.Game;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
+import Tasca.S5.__Dice_Game.DB.model.repository.GameRepository;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
 import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityExistsException;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +28,9 @@ public class PlayerServiceImpl implements PlayerService {
     public PlayerServiceImpl(PlayerRepository playerRepository) {
         this.playerRepository = playerRepository;
     }
+
+    @Autowired
+    private GameRepository gameRepository;
 
     @Override
     public PlayerDTO createPlayer(PlayerDTO playerDTO) {
@@ -56,54 +62,71 @@ public class PlayerServiceImpl implements PlayerService {
             // Save the new player to the repository
             Player savedPlayer = playerRepository.save(player);
 
-            // Create and return a PlayerDTO from the saved Player entity
-            return new PlayerDTO(savedPlayer);
+            // Count total played games in MySQL for the saved player
+            long totalPlayedGames = gameRepository.countByPlayerId(savedPlayer.getId());
+
+            // Create and return a PlayerDTO from the saved Player entity and total played games
+            return new PlayerDTO(savedPlayer, totalPlayedGames);
+
         } catch (Exception e) {
             // Handle any exceptions that occur during the save operation
             throw new RuntimeException("Failed to create player: " + e.getMessage(), e);
         }
     }
 
-    @Override
-    public PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO) {
-        Player player = playerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Update Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
+        @Override
+        public PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO) {
+            Player player = playerRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Update Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
 
-        if (StringUtils.isEmpty(playerDTO.getName())) {
-            throw new IllegalArgumentException("Name cannot be empty");
+            if (StringUtils.isEmpty(playerDTO.getName())) {
+                throw new IllegalArgumentException("Name cannot be empty");
+            }
+            if (StringUtils.isEmpty(playerDTO.getEmail())) {
+                throw new IllegalArgumentException("Email cannot be empty");
+            }
+            if (StringUtils.isEmpty(playerDTO.getPassword())) {
+                throw new IllegalArgumentException("Password cannot be empty");
+            }
+
+            player.setName(playerDTO.getName());
+            player.setEmail(playerDTO.getEmail());
+            player.setPassword(playerDTO.getPassword());
+            Player updatedPlayer = playerRepository.save(player);
+
+            long totalPlayedGames = gameRepository.countByPlayerId(updatedPlayer.getId());
+            return new PlayerDTO(updatedPlayer, totalPlayedGames);
         }
-        if (StringUtils.isEmpty(playerDTO.getEmail())) {
-            throw new IllegalArgumentException("Email cannot be empty");
+
+
+        @Override
+        public PlayerDTO getPlayerById(String id) {
+            Player player = playerRepository.findById(id)
+                    .orElseThrow(() -> new EntityNotFoundException("Get One Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
+
+            long totalPlayedGames = gameRepository.countByPlayerId(player.getId());
+            return new PlayerDTO(player, totalPlayedGames);
         }
-        if (StringUtils.isEmpty(playerDTO.getPassword())) {
-            throw new IllegalArgumentException("Password cannot be empty");
-        }
 
-
-
-        player.setName(playerDTO.getName());
-        player.setEmail(playerDTO.getEmail());
-        player.setPassword(playerDTO.getPassword());
-        Player updatedPlayer = playerRepository.save(player);
-        return new PlayerDTO(updatedPlayer);
-    }
-
-    /*
-    @Override
-    public PlayerDTO getPlayerById(String id) {
-        Player player = playerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Get One Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
-
-        return new PlayerDTO(player);
-    }
-*/
     @Override
     public List<PlayerDTO> getAllPlayers() {
         return playerRepository.findAll().stream()
-                .map(PlayerDTO::new)
+                .map(player -> {
+                    long totalPlayedGames = gameRepository.countByPlayerId(player.getId()); // Count games in MySQL
+                    return new PlayerDTO(player, totalPlayedGames);
+                })
                 .collect(Collectors.toList());
     }
 
+    private List<Game> getGamesForPlayer(String playerId) {
+        Optional<List<Game>> gamesOpt = gameRepository.findByPlayerId(playerId);
+        if (gamesOpt.isPresent()) {
+            return gamesOpt.get();
+        } else {
+            return Collections.emptyList();
+        }
+    }
+/*
     @Override
     public String getAverageSuccessRate() {
         List<Player> players = playerRepository.findAll();
@@ -138,4 +161,6 @@ public class PlayerServiceImpl implements PlayerService {
                 .map(PlayerDTO::new)
                 .orElse(null);
     }
+
+ */
 }

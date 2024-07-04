@@ -31,26 +31,27 @@ public class PlayerDTO {
  //   private long totalPlayedGamesOverall;
 
 
-    public PlayerDTO(String name, String email, String password) {
+    public PlayerDTO(String name, String email, String password ) {
 
         this.name = (name != null && !name.isEmpty()) ? name : "ANÒNIM";
         this.successRate = 0.0;
         this.email = email;
         this.password = password;
-
+        //this.totalPlayedGames =totalPlayedGames;
  //       this.totalPlayedGamesOverall = 0;
     }
 
-    public PlayerDTO(Player player) {
+    public PlayerDTO(Player player,long totalPlayedGames) {
         this.id = player.getId();
 
         this.name = player.getName();
         this.registrationDate = player.getRegistrationDate();
-        /*
-        this.successRate = roundToTwoDecimalPlaces(calculateSuccessRate(player)) ;
-        this.totalPlayedGames = player.getGames().size();
 
-         */
+     //   this.successRate = roundToTwoDecimalPlaces(calculateSuccessRate(player)) ;
+     //this.totalPlayedGames = 0;
+        this.totalPlayedGames =totalPlayedGames;
+
+       // this.totalPlayedGames = game.getPlayerId().length();
         this.email = player.getEmail();
         this.password = player.getPassword();
 

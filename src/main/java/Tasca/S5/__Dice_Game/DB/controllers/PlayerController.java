@@ -35,14 +35,14 @@ public class PlayerController {
      //   playerService.deletePlayerGames(id);
    // }
 
-    //@GetMapping("/{id}")
-    //public PlayerDTO getPlayerById(@PathVariable String id) {
-   //     return playerService.getPlayerById(id);
-    //}
+    @GetMapping("/{id}")
+    public PlayerDTO getPlayerById(@PathVariable String id) {
+        return playerService.getPlayerById(id);
+    }
 
 
 
-
+/*
     @GetMapping("/ranking")
     public String getAverageSuccessRate() {
         return playerService.getAverageSuccessRate();
@@ -58,4 +58,6 @@ public class PlayerController {
         return playerService.getPlayerWithHighestSuccessRate();
     }
 
+
+ */
 }
