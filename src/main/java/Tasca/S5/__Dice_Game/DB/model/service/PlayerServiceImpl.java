@@ -2,6 +2,7 @@ package Tasca.S5.__Dice_Game.DB.model.service;
 
 import Tasca.S5.__Dice_Game.DB.model.domain.Game;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
+import Tasca.S5.__Dice_Game.DB.model.domain.Role;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.repository.GameRepository;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
@@ -34,8 +35,11 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public PlayerDTO createPlayer(PlayerDTO playerDTO) {
+        if (playerDTO.getRole() == null) {
+            playerDTO.setRole(Role.USER);
+        }
         // Create a new Player entity from the provided PlayerDTO
-        Player player = new Player(playerDTO.getName(), playerDTO.getEmail(), playerDTO.getPassword());
+        Player player = new Player(playerDTO.getName(), playerDTO.getEmail(), playerDTO.getPassword(), playerDTO.getRole());
 
         // Set default name if the provided name is empty
         if (player.getName() == null || player.getName().isEmpty()) {
