@@ -35,8 +35,6 @@ public class PlayerController {
         return playerService.getPlayerById(id);
     }
 
-
-
     @GetMapping("/ranking")
     public String getAverageSuccessRate() {
         return playerService.getAverageSuccessRate();
@@ -51,7 +49,6 @@ public class PlayerController {
     public PlayerDTO getPlayerWithHighestSuccessRate() {
         return playerService.getPlayerWithHighestSuccessRate();
     }
-
 
 
 }

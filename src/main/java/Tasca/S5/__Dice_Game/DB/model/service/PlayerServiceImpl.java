@@ -135,11 +135,7 @@ public class PlayerServiceImpl implements PlayerService {
 
     private List<Game> getGamesForPlayer(String playerId) {
         Optional<List<Game>> gamesOpt = gameRepository.findByPlayerId(playerId);
-        if (gamesOpt.isPresent()) {
-            return gamesOpt.get();
-        } else {
-            return Collections.emptyList();
-        }
+        return gamesOpt.orElse(Collections.emptyList());
     }
 
     @Override

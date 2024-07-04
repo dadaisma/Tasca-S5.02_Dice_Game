@@ -19,9 +19,6 @@ public class GameController {
         // Create game in MySQL
         GameDTO gameDTO = gameService.createGame(playerId);
 
-        // Update player's games array in MongoDB
-      //  gameService.updatePlayerGamesInMongoDB(playerId);
-
         return gameDTO;
     }
 
