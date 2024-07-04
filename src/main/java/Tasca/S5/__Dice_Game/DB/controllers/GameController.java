@@ -20,7 +20,7 @@ public class GameController {
         GameDTO gameDTO = gameService.createGame(playerId);
 
         // Update player's games array in MongoDB
-        gameService.updatePlayerGamesInMongoDB(playerId);
+      //  gameService.updatePlayerGamesInMongoDB(playerId);
 
         return gameDTO;
     }
@@ -30,8 +30,9 @@ public class GameController {
         return gameService.getGamesByPlayerId(playerId);
     }
 
-  //  @DeleteMapping
-  //  public void deletePlayerGames(@PathVariable Long playerId) {
-   //     gameService.deletePlayerGames(playerId);
-  //  }
+
+    @DeleteMapping
+    public void deletePlayerGames(@PathVariable String playerId) {
+        gameService.deletePlayerGames(playerId);
+    }
 }

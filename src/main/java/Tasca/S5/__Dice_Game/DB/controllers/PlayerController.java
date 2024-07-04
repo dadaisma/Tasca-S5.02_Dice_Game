@@ -1,5 +1,6 @@
 package Tasca.S5.__Dice_Game.DB.controllers;
 
+import Tasca.S5.__Dice_Game.DB.model.dto.GameDTO;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +30,18 @@ public class PlayerController {
         return playerService.getAllPlayers();
     }
 
-    @DeleteMapping("/{id}/games")
-    public void deletePlayerGames(@PathVariable String id) {
-        playerService.deletePlayerGames(id);
-    }
+   // @DeleteMapping("/{id}/games")
+   // public void deletePlayerGames(@PathVariable String id) {
+     //   playerService.deletePlayerGames(id);
+   // }
 
-    @GetMapping("/{id}")
-    public PlayerDTO getPlayerById(@PathVariable String id) {
-        return playerService.getPlayerById(id);
-    }
+    //@GetMapping("/{id}")
+    //public PlayerDTO getPlayerById(@PathVariable String id) {
+   //     return playerService.getPlayerById(id);
+    //}
+
+
+
 
     @GetMapping("/ranking")
     public String getAverageSuccessRate() {

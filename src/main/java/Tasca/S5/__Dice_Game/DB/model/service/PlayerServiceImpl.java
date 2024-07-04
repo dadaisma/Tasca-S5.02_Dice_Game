@@ -41,6 +41,12 @@ public class PlayerServiceImpl implements PlayerService {
             throw new EntityExistsException("Create new Player Failed: Invalid Player name: " + player.getName() + " -> ALREADY EXISTS in DataBase");
         }
 
+        if (StringUtils.isEmpty(playerDTO.getEmail())) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
+        if (StringUtils.isEmpty(playerDTO.getPassword())) {
+            throw new IllegalArgumentException("Password cannot be empty");
+        }
         // Check if a player with the same email already exists
         if (playerRepository.findByEmail(player.getEmail()).isPresent()) {
             throw new EntityExistsException("Create new Player Failed: Invalid email: " + player.getEmail() + " -> ALREADY EXISTS in DataBase");
@@ -82,15 +88,7 @@ public class PlayerServiceImpl implements PlayerService {
         return new PlayerDTO(updatedPlayer);
     }
 
-    @Override
-    public void deletePlayerGames(String playerId) {
-        Player player = playerRepository.findById(playerId)
-                .orElseThrow(() -> new EntityNotFoundException("Delete Player Failed: Invalid player id: " + playerId + " -> DOESN'T EXIST in DataBase"));
-
-        player.getGames().clear();
-        playerRepository.save(player);
-    }
-
+    /*
     @Override
     public PlayerDTO getPlayerById(String id) {
         Player player = playerRepository.findById(id)
@@ -98,7 +96,7 @@ public class PlayerServiceImpl implements PlayerService {
 
         return new PlayerDTO(player);
     }
-
+*/
     @Override
     public List<PlayerDTO> getAllPlayers() {
         return playerRepository.findAll().stream()

@@ -29,7 +29,7 @@ public class Player {
     private String password;
 
 
-    private List<Game> games = new ArrayList<>();
+   // private List<Game> games = new ArrayList<>();
 
     public Player(String name, String email, String password) {
         this.name = name;

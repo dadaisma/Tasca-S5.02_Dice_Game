@@ -10,9 +10,9 @@ public interface PlayerService {
 
     PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO);
 
-    void deletePlayerGames(String playerId);
 
-    PlayerDTO getPlayerById(String id);
+
+
 
     List<PlayerDTO> getAllPlayers();
 

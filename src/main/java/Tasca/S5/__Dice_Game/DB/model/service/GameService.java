@@ -13,12 +13,12 @@ public interface GameService {
 
     List<GameDTO> getGamesByPlayerId(String playerId);
 
-  //  void deletePlayerGames(Long playerId);
+   void deletePlayerGames(String playerId);
 
     List<GameDTO> getAllGameDtos();
 
 
-    public void updatePlayerGamesInMongoDB(String playerId);
+   // public void updatePlayerGamesInMongoDB(String playerId);
 
 
 

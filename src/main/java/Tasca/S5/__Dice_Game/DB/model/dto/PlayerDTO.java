@@ -46,14 +46,17 @@ public class PlayerDTO {
 
         this.name = player.getName();
         this.registrationDate = player.getRegistrationDate();
+        /*
         this.successRate = roundToTwoDecimalPlaces(calculateSuccessRate(player)) ;
         this.totalPlayedGames = player.getGames().size();
+
+         */
         this.email = player.getEmail();
         this.password = player.getPassword();
 
        // this.totalPlayedGamesOverall = getTotalPlayedGames(player);
     }
-
+/*
     private double calculateSuccessRate(Player player) {
         List<Game> games = player.getGames() != null ? player.getGames() : Collections.emptyList();
 
@@ -73,4 +76,6 @@ public class PlayerDTO {
     public String getSuccess_Rate() {
         return String.format(Locale.US, "%.2f %%", successRate);
     }
+
+ */
 }
