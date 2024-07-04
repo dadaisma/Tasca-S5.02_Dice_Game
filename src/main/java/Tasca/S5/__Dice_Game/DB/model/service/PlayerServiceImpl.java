@@ -70,7 +70,7 @@ public class PlayerServiceImpl implements PlayerService {
             long totalPlayedGames = gameRepository.countByPlayerId(savedPlayer.getId());
 
             // Create and return a PlayerDTO from the saved Player entity and total played games
-            return new PlayerDTO(savedPlayer, totalPlayedGames);
+            return new PlayerDTO(savedPlayer);
 
         } catch (Exception e) {
             // Handle any exceptions that occur during the save operation
@@ -98,26 +98,37 @@ public class PlayerServiceImpl implements PlayerService {
             player.setPassword(playerDTO.getPassword());
             Player updatedPlayer = playerRepository.save(player);
 
-            long totalPlayedGames = gameRepository.countByPlayerId(updatedPlayer.getId());
-            return new PlayerDTO(updatedPlayer, totalPlayedGames);
+            double successRate = calculateSuccessRate(player.getId());
+            PlayerDTO updatedPlayerDTO = new PlayerDTO(updatedPlayer);
+            updatedPlayerDTO.setSuccessRate(successRate);
+            updatedPlayerDTO.setTotalPlayedGames(calculateTotalPlayedGames(updatedPlayer.getId()));
+
+            return updatedPlayerDTO;
         }
 
 
-        @Override
-        public PlayerDTO getPlayerById(String id) {
-            Player player = playerRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Get One Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
 
-            long totalPlayedGames = gameRepository.countByPlayerId(player.getId());
-            return new PlayerDTO(player, totalPlayedGames);
-        }
+    public PlayerDTO getPlayerById(String id) {
+        Player player = playerRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Get One Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
+
+        PlayerDTO playerDTO = new PlayerDTO(player);
+        double successRate = calculateSuccessRate(player.getId());
+        playerDTO.setSuccessRate(successRate);
+        playerDTO.setTotalPlayedGames(calculateTotalPlayedGames(player.getId()));
+        return playerDTO;
+    }
 
     @Override
     public List<PlayerDTO> getAllPlayers() {
         return playerRepository.findAll().stream()
                 .map(player -> {
-                    long totalPlayedGames = gameRepository.countByPlayerId(player.getId()); // Count games in MySQL
-                    return new PlayerDTO(player, totalPlayedGames);
+                    PlayerDTO playerDTO = new PlayerDTO(player);
+                    double successRate = calculateSuccessRate(player.getId());
+                    playerDTO.setSuccessRate(successRate);
+                    long totalPlayedGames = calculateTotalPlayedGames(player.getId());
+                    playerDTO.setTotalPlayedGames(totalPlayedGames);
+                    return playerDTO;
                 })
                 .collect(Collectors.toList());
     }
@@ -130,41 +141,71 @@ public class PlayerServiceImpl implements PlayerService {
             return Collections.emptyList();
         }
     }
-/*
+
     @Override
     public String getAverageSuccessRate() {
         List<Player> players = playerRepository.findAll();
         if (players.isEmpty()) {
-            return "No players found.";
+            throw new EntityNotFoundException( "No players found.");
         }
 
         double totalSuccessRate = players.stream()
-                .mapToDouble(player -> new PlayerDTO(player).getSuccessRate())
-                .sum();
+                .mapToDouble(player ->
+                    calculateSuccessRate(player.getId())).sum();
 
         double averageSuccessRate = totalSuccessRate / players.size();
         long totalGamesPlayed = players.stream()
-                .mapToLong(player -> new PlayerDTO(player).getTotalPlayedGames())
+                .mapToLong(player -> gameRepository.countByPlayerId(player.getId()))
                 .sum();
 
-        return String.format("The success rate is %.2f %% on an overall of games played of %d", averageSuccessRate, totalGamesPlayed);
+        return String.format("The success rate is %.2f %% on an overall of  %d games played", averageSuccessRate, totalGamesPlayed);
+    }
+
+    private double calculateSuccessRate(String playerId) {
+        long totalGames = gameRepository.countByPlayerId(playerId);
+        long wonGames = gameRepository.countByPlayerIdAndWon(playerId, true);
+        return totalGames == 0 ? 0 : (double) wonGames / totalGames * 100;
+    }
+
+
+    private long calculateTotalPlayedGames(String playerId) {
+        return gameRepository.countByPlayerId(playerId);
+    }
+
+
+    @Override
+    public long totalPlayedGames() {
+        List<Player> players = playerRepository.findAll();
+        return players.stream()
+                .mapToLong(player -> gameRepository.countByPlayerId(player.getId()))
+                .sum();
     }
 
     @Override
     public PlayerDTO getPlayerWithLowestSuccessRate() {
         return playerRepository.findAll().stream()
-                .min(Comparator.comparingDouble(player -> new PlayerDTO(player).getSuccessRate()))
-                .map(PlayerDTO::new)
+                .min(Comparator.comparingDouble(player -> calculateSuccessRate(player.getId())))
+                .map(player -> {
+                    PlayerDTO playerDTO = new PlayerDTO(player);
+                    playerDTO.setSuccessRate(calculateSuccessRate(player.getId()));
+                    playerDTO.setTotalPlayedGames(gameRepository.countByPlayerId(player.getId()));
+                    return playerDTO;
+                })
                 .orElse(null);
     }
 
     @Override
     public PlayerDTO getPlayerWithHighestSuccessRate() {
         return playerRepository.findAll().stream()
-                .max(Comparator.comparingDouble(player -> new PlayerDTO(player).getSuccessRate()))
-                .map(PlayerDTO::new)
+                .max(Comparator.comparingDouble(player -> calculateSuccessRate(player.getId())))
+                .map(player -> {
+                    PlayerDTO playerDTO = new PlayerDTO(player);
+                    playerDTO.setSuccessRate(calculateSuccessRate(player.getId()));
+                    playerDTO.setTotalPlayedGames(gameRepository.countByPlayerId(player.getId()));
+                    return playerDTO;
+                })
                 .orElse(null);
     }
 
- */
+
 }

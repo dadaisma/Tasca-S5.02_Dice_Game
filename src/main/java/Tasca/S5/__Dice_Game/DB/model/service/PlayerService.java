@@ -15,11 +15,13 @@ public interface PlayerService {
 
     PlayerDTO getPlayerById(String id);
 
-   // double getAverageSuccessRate();
+    String getAverageSuccessRate();
 
-   // PlayerDTO getPlayerWithLowestSuccessRate();
+    long totalPlayedGames();
 
- //   PlayerDTO getPlayerWithHighestSuccessRate();
+    PlayerDTO getPlayerWithLowestSuccessRate();
 
- //   String getAverageSuccessRate();
+    PlayerDTO getPlayerWithHighestSuccessRate();
+
+
 }
