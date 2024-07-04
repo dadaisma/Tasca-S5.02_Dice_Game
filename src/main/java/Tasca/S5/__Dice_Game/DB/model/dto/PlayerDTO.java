@@ -21,7 +21,7 @@ public class PlayerDTO {
     private LocalDate registrationDate;
     private Role role;
     @Setter
-    private double successRate;
+    private String successRate;
     @Setter
     private long totalPlayedGames;
 
@@ -42,7 +42,10 @@ public class PlayerDTO {
         this.role = player.getRole();
 
     }
-
+    public void setSuccessRate(double successRate) {
+        DecimalFormat df = new DecimalFormat("0.00");
+        this.successRate = df.format(successRate) + " %";
+    }
 
 
 }
