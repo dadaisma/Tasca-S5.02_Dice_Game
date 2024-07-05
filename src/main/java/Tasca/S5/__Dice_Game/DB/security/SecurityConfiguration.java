@@ -10,8 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 
 @Configuration
@@ -26,20 +25,23 @@ public class SecurityConfiguration {
 
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf(csrf ->
-                        csrf.disable())
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authRequest ->
-                 authRequest
-                         .requestMatchers("/auth/**").permitAll()
-                         .anyRequest().authenticated()
-                        )
+                        authRequest
+                                .requestMatchers(
+                                        new AntPathRequestMatcher("/auth/**"),
+                                        new AntPathRequestMatcher("/swagger-ui/**")
+                                )
+                                .permitAll()
+                                .anyRequest().authenticated()
+                )
                 .sessionManagement(sessionManager ->
                         sessionManager
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

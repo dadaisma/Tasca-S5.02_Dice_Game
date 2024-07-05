@@ -1,10 +1,9 @@
-package Tasca.S5.__Dice_Game.DB.model.service;
+package Tasca.S5.__Dice_Game.DB.security;
 
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;

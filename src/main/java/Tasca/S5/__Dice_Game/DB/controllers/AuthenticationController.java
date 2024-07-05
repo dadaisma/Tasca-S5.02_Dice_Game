@@ -4,7 +4,9 @@ import Tasca.S5.__Dice_Game.DB.dao.LoginRequest;
 import Tasca.S5.__Dice_Game.DB.dao.RegisterRequest;
 import Tasca.S5.__Dice_Game.DB.dao.response.JwtAuthenticationResponse;
 import Tasca.S5.__Dice_Game.DB.model.service.AuthService;
+import Tasca.S5.__Dice_Game.DB.utils.HeaderUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,14 +23,17 @@ public class AuthenticationController {
     private final AuthService authService;
 
     @PostMapping(value = "login")
-    public ResponseEntity<JwtAuthenticationResponse>  login(@RequestBody LoginRequest request){
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody LoginRequest request) {
+        JwtAuthenticationResponse response = authService.login(request);
+        HttpHeaders headers = HeaderUtil.createHeaders(response.getToken());
+        return ResponseEntity.ok().headers(headers).body(response);
     }
 
     @PostMapping(value = "register")
     public ResponseEntity<JwtAuthenticationResponse> signUp(@RequestBody RegisterRequest request){
-        return ResponseEntity.ok(authService.signUp(request));
+        JwtAuthenticationResponse response = authService.signUp(request);
+        HttpHeaders headers = HeaderUtil.createHeaders(response.getToken());
+        return ResponseEntity.ok().headers(headers).body(response);
     }
-
 
 }

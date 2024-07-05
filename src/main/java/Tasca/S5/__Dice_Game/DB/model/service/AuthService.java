@@ -6,6 +6,8 @@ import Tasca.S5.__Dice_Game.DB.dao.response.JwtAuthenticationResponse;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import Tasca.S5.__Dice_Game.DB.model.domain.Role;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
+import Tasca.S5.__Dice_Game.DB.security.JwtService;
+import Tasca.S5.__Dice_Game.DB.utils.HeaderUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,6 +32,8 @@ public class AuthService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(),request.getPassword()));
         UserDetails user = playerRepository.findByEmail(request.getEmail()).orElseThrow();
         String token= jwtService.getToken(user);
+        HeaderUtil.setToken(token);
+
         return JwtAuthenticationResponse.builder()
                 .token(token)
                 .build();
@@ -49,6 +53,8 @@ public class AuthService {
 
 
         String token = jwtService.getToken(user);
+       // HttpHeaders headers = HeaderUtil.createHeaders(token);
+        HeaderUtil.setToken(token);
 
         return JwtAuthenticationResponse.builder()
                 .token(token)
