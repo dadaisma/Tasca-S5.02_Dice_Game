@@ -1,9 +1,6 @@
 package Tasca.S5.__Dice_Game.DB.dao;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -14,7 +11,9 @@ import java.time.LocalDate;
 
 
 public class RegisterRequest {
+    @NonNull
     String email;
+    @NonNull
     String password;
     String name;
     private LocalDate registrationDate;

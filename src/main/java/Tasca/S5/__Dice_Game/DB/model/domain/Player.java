@@ -28,13 +28,15 @@ public class Player implements UserDetails {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate registrationDate;
     private Role role;
+    @NonNull
     private String email;
+    @NonNull
     private String password;
 
 
    // private List<Game> games = new ArrayList<>();
 
-    public Player(String name, String email, String password, Role Role) {
+    public Player(String name, @NonNull String email, @NonNull String password, Role Role) {
         this.name = name;
         this.email = email;
         this.password = password;
