@@ -36,6 +36,7 @@ public class AuthService {
 
         return JwtAuthenticationResponse.builder()
                 .token(token)
+                .expiresIn(jwtService.getExpirationTime())
                 .build();
     }
 
@@ -58,9 +59,7 @@ public class AuthService {
 
         return JwtAuthenticationResponse.builder()
                 .token(token)
+                .expiresIn(jwtService.getExpirationTime())
                 .build();
     }
-
-
-
 }

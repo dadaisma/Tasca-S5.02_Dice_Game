@@ -4,7 +4,9 @@ package Tasca.S5.__Dice_Game.DB.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +20,18 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    private static final Key SECRECT_KEY= Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @Value("${security.jwt.secret-key}")
+    private String secretKey;
+
+    @Value("${security.jwt.expiration-time}")
+    private Long jwtExpiration;
+
+   // private static final Key SECRECT_KEY= Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public String getToken(UserDetails user) {
         return getToken(new HashMap<>(), user);
     }
+
 
     private String getToken(Map<String, Object> extraClaims, UserDetails user) {
         return Jwts
@@ -30,8 +39,8 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
-                .signWith(SECRECT_KEY, SignatureAlgorithm.HS256)
+                .setExpiration(new Date(System.currentTimeMillis() + getExpirationTime()))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -48,7 +57,7 @@ public class JwtService {
     private Claims getAllClaims(String token){
         return Jwts
                 .parserBuilder()
-                .setSigningKey(SECRECT_KEY)
+                .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -65,5 +74,12 @@ public class JwtService {
 
     private boolean isTokenExpired(String token){
         return getExpiration(token).before(new Date());
+    }
+    private Key getSignInKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+    public long getExpirationTime() {
+        return jwtExpiration;
     }
 }

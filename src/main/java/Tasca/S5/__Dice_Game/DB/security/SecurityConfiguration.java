@@ -30,10 +30,10 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authRequest ->
                         authRequest
-                                .requestMatchers(
-                                        new AntPathRequestMatcher("/auth/**"),
-                                        new AntPathRequestMatcher("/swagger-ui/**")
-                                )
+                                .requestMatchers("/auth/**",
+                                        "/swagger-ui/**",
+                                        "/swagger",
+                                        "/v3/api-docs/**")
                                 .permitAll()
                                 .anyRequest().authenticated()
                 )
