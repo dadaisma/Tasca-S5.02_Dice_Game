@@ -4,9 +4,14 @@ import Tasca.S5.__Dice_Game.DB.model.dto.GameDTO;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.service.PlayerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static Tasca.S5.__Dice_Game.DB.utils.HeaderUtil.createHeaders;
 
 @RestController
 @RequestMapping("/players")
@@ -15,39 +20,48 @@ public class PlayerController {
     @Autowired
     private PlayerService playerService;
 
+
+
     @PostMapping
-    public PlayerDTO createPlayer(@RequestBody PlayerDTO playerDTO) {
-        return playerService.createPlayer(playerDTO);
+    public ResponseEntity<PlayerDTO>createPlayer(@RequestBody PlayerDTO playerDTO) {
+       PlayerDTO userCreated = playerService.createPlayer(playerDTO);
+        return new ResponseEntity<>(userCreated, createHeaders(), HttpStatus.CREATED) ;
     }
 
     @PutMapping("/{id}")
-    public PlayerDTO updatePlayerName(@PathVariable String id, @RequestBody PlayerDTO playerDTO) {
-        return playerService.updatePlayerName(id, playerDTO);
+    public ResponseEntity<PlayerDTO> updatePlayerName(@PathVariable String id, @RequestBody PlayerDTO playerDTO) {
+        PlayerDTO editUser = playerService.updatePlayerName(id, playerDTO);
+        return new ResponseEntity<>(editUser, createHeaders(), HttpStatus.OK);
     }
 
     @GetMapping
-    public List<PlayerDTO> getAllPlayers() {
-        return playerService.getAllPlayers();
+    public ResponseEntity<List<PlayerDTO>> getAllPlayers() {
+        List<PlayerDTO> players = playerService.getAllPlayers();
+        return new ResponseEntity<>(players, createHeaders(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public PlayerDTO getPlayerById(@PathVariable String id) {
-        return playerService.getPlayerById(id);
+    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable String id) {
+        PlayerDTO userById = playerService.getPlayerById(id);
+        return new ResponseEntity<>(userById, createHeaders(), HttpStatus.OK);
     }
 
     @GetMapping("/ranking")
-    public String getAverageSuccessRate() {
-        return playerService.getAverageSuccessRate();
+    public ResponseEntity<String> getAverageSuccessRate() {
+        String averageSuccessRate = playerService.getAverageSuccessRate();
+        return new ResponseEntity<>(averageSuccessRate, createHeaders(), HttpStatus.OK);
     }
 
     @GetMapping("/ranking/loser")
-    public PlayerDTO getPlayerWithLowestSuccessRate() {
-        return playerService.getPlayerWithLowestSuccessRate();
+    public ResponseEntity<PlayerDTO> getPlayerWithLowestSuccessRate() {
+        PlayerDTO loser = playerService.getPlayerWithLowestSuccessRate();
+        return new ResponseEntity<>(loser, createHeaders(), HttpStatus.OK);
     }
 
     @GetMapping("/ranking/winner")
-    public PlayerDTO getPlayerWithHighestSuccessRate() {
-        return playerService.getPlayerWithHighestSuccessRate();
+    public ResponseEntity<PlayerDTO> getPlayerWithHighestSuccessRate() {
+        PlayerDTO winner = playerService.getPlayerWithHighestSuccessRate();
+        return new ResponseEntity<>(winner, createHeaders(),HttpStatus.OK);
     }
 
 
