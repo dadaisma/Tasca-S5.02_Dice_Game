@@ -10,6 +10,7 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,9 @@ public class PlayerServiceImpl implements PlayerService {
     private final PlayerRepository playerRepository;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     public PlayerServiceImpl(PlayerRepository playerRepository) {
         this.playerRepository = playerRepository;
     }
@@ -38,8 +42,9 @@ public class PlayerServiceImpl implements PlayerService {
         if (playerDTO.getRole() == null) {
             playerDTO.setRole(Role.USER);
         }
+        String encodedPassword = passwordEncoder.encode(playerDTO.getPassword());
         // Create a new Player entity from the provided PlayerDTO
-        Player player = new Player(playerDTO.getName(), playerDTO.getEmail(), playerDTO.getPassword(), playerDTO.getRole());
+        Player player = new Player(playerDTO.getName(), playerDTO.getEmail(), encodedPassword, playerDTO.getRole());
 
         // Set default name if the provided name is empty
         if (player.getName() == null || player.getName().isEmpty()) {
@@ -92,10 +97,12 @@ public class PlayerServiceImpl implements PlayerService {
             if (StringUtils.isEmpty(playerDTO.getPassword())) {
                 throw new IllegalArgumentException("Password cannot be empty");
             }
+            String newPassword = playerDTO.getPassword();
+            String encodedPassword = passwordEncoder.encode(newPassword);
 
             player.setName(playerDTO.getName());
             player.setEmail(playerDTO.getEmail());
-            player.setPassword(playerDTO.getPassword());
+            player.setPassword(encodedPassword);
             Player updatedPlayer = playerRepository.save(player);
 
             double successRate = calculateSuccessRate(player.getId());

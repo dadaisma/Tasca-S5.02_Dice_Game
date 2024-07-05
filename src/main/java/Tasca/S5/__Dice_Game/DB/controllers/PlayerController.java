@@ -4,6 +4,7 @@ import Tasca.S5.__Dice_Game.DB.model.dto.GameDTO;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.service.PlayerService;
 import Tasca.S5.__Dice_Game.DB.utils.HeaderUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -37,8 +38,10 @@ public class PlayerController {
         return new ResponseEntity<>(editUser, createHeaders(HeaderUtil.getToken()), HttpStatus.OK);
     }
 
+    //bearer back
     @GetMapping
-    public ResponseEntity<List<PlayerDTO>> getAllPlayers() {
+    public ResponseEntity<List<PlayerDTO>> getAllPlayers(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
         List<PlayerDTO> players = playerService.getAllPlayers();
         return new ResponseEntity<>(players, createHeaders(token), HttpStatus.OK);
     }

@@ -10,6 +10,7 @@ import Tasca.S5.__Dice_Game.DB.security.JwtService;
 import Tasca.S5.__Dice_Game.DB.utils.HeaderUtil;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -17,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
 import java.time.LocalDate;
 
 @Service
@@ -72,7 +72,7 @@ public class AuthService {
 
 
         String token = jwtService.getToken(user);
-       // HttpHeaders headers = HeaderUtil.createHeaders(token);
+        HttpHeaders headers = HeaderUtil.createHeaders(token);
         HeaderUtil.setToken(token);
 
         return JwtAuthenticationResponse.builder()

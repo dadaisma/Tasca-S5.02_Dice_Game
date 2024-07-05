@@ -14,7 +14,7 @@ public class HeaderUtil {
         System.out.println("Token received: " + token);
         HttpHeaders headers = new HttpHeaders();
         if (token != null) {
-            headers.add("Authorization", "Bearer " + token);
+            headers.add("Authorization", token);
         }
         return headers;
     }
