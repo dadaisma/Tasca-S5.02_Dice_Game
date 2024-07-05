@@ -1,5 +1,6 @@
 package Tasca.S5.__Dice_Game.DB.model.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -24,6 +25,7 @@ public class Player implements UserDetails {
     @Id
     private String id;
     private String name;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate registrationDate;
     private Role role;
     private String email;
