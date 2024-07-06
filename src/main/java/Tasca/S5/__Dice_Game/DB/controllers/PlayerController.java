@@ -3,12 +3,19 @@ package Tasca.S5.__Dice_Game.DB.controllers;
 import Tasca.S5.__Dice_Game.DB.model.dto.GameDTO;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.service.PlayerService;
+import Tasca.S5.__Dice_Game.DB.security.JwtService;
 import Tasca.S5.__Dice_Game.DB.utils.HeaderUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,8 +47,16 @@ public class PlayerController {
 
     //bearer back
     @GetMapping
+   // @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<PlayerDTO>> getAllPlayers(HttpServletRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Check if user has ADMIN role
+        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))) {
+            throw new InsufficientAuthenticationException("You don't have permissions to access this resource");
+        }
         String token = request.getHeader("Authorization");
+
         List<PlayerDTO> players = playerService.getAllPlayers();
         return new ResponseEntity<>(players, createHeaders(token), HttpStatus.OK);
     }

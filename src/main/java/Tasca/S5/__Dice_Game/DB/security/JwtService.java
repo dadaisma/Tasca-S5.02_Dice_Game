@@ -9,12 +9,13 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
+import org.springframework.security.core.GrantedAuthority;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -29,9 +30,14 @@ public class JwtService {
    // private static final Key SECRECT_KEY= Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public String getToken(UserDetails user) {
-        return getToken(new HashMap<>(), user);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", user.getAuthorities().stream()
+                .map(authority ->
+                      //  "ROLE_" +
+                                authority.getAuthority())
+                .collect(Collectors.toList()));
+        return getToken(claims, user);
     }
-
 
     private String getToken(Map<String, Object> extraClaims, UserDetails user) {
         return Jwts
