@@ -34,15 +34,14 @@ public class Player implements UserDetails {
     private String password;
 
 
-   // private List<Game> games = new ArrayList<>();
-
-    public Player(String name, @NonNull String email, @NonNull String password, Role Role) {
+    public Player(String name, @NonNull String email, @NonNull String password, Role role) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.registrationDate = LocalDate.now();
-        this.role = Role.USER;
+        this.role = role;
     }
+
 
 
     @Override

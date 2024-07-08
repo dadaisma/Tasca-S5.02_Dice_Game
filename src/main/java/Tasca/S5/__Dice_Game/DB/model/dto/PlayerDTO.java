@@ -30,7 +30,7 @@ public class PlayerDTO {
         this.registrationDate = LocalDate.now();
         this.email = email;
         this.password = password;
-        this.role = Role.USER;
+        //this.role = Role.USER;
     }
 
     public PlayerDTO(Player player) {
@@ -39,7 +39,7 @@ public class PlayerDTO {
         this.registrationDate = player.getRegistrationDate();
         this.email = player.getEmail();
         this.password = player.getPassword();
-        this.role = player.getRole();
+       this.role = player.getRole();
 
     }
     public void setSuccessRate(double successRate) {

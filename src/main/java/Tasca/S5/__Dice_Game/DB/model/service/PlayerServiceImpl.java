@@ -37,35 +37,45 @@ public class PlayerServiceImpl implements PlayerService {
     @Autowired
     private GameRepository gameRepository;
 
+
     @Override
     public PlayerDTO createPlayer(PlayerDTO playerDTO) {
-        if (playerDTO.getRole() == null) {
-            playerDTO.setRole(Role.USER);
-        }
-        String encodedPassword = passwordEncoder.encode(playerDTO.getPassword());
-        // Create a new Player entity from the provided PlayerDTO
-        Player player = new Player(playerDTO.getName(), playerDTO.getEmail(), encodedPassword, playerDTO.getRole());
-
-        // Set default name if the provided name is empty
-        if (player.getName() == null || player.getName().isEmpty()) {
-            player.setName("ANÒNIM");
-        }
-
-        // Check if a player with the same name already exists (excluding "ANÒNIM")
-        if (!player.getName().equals("ANÒNIM") && playerRepository.findByName(player.getName()).isPresent()) {
-            throw new EntityExistsException("Create new Player Failed: Invalid Player name: " + player.getName() + " -> ALREADY EXISTS in DataBase");
-        }
-
         if (StringUtils.isEmpty(playerDTO.getEmail())) {
             throw new IllegalArgumentException("Email cannot be empty");
         }
+
         if (StringUtils.isEmpty(playerDTO.getPassword())) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
-        // Check if a player with the same email already exists
-        if (playerRepository.findByEmail(player.getEmail()).isPresent()) {
-            throw new EntityExistsException("Create new Player Failed: Invalid email: " + player.getEmail() + " -> ALREADY EXISTS in DataBase");
+
+        String encodedPassword = passwordEncoder.encode(playerDTO.getPassword());
+
+
+        if (playerDTO.getName() == null || playerDTO.getName().isEmpty()) {
+            playerDTO.setName("ANÒNIM");
         }
+
+        // Check if a player with the same name already exists (excluding "ANÒNIM")
+        if (!playerDTO.getName().equals("ANÒNIM") && playerRepository.findByName(playerDTO.getName()).isPresent()) {
+            throw new EntityExistsException("Create new Player Failed: Invalid Player name: " + playerDTO.getName() + " -> ALREADY EXISTS in DataBase");
+        }
+
+        if (playerRepository.findByEmail(playerDTO.getEmail()).isPresent()) {
+            throw new EntityExistsException("Create new Player Failed: Invalid email: " + playerDTO.getEmail() + " -> ALREADY EXISTS in DataBase");
+        }
+
+        // Determine the role based on the nickname
+        Role role = Role.USER; // Default role
+        if (playerDTO.getName() != null && playerDTO.getName().toLowerCase().contains("admin")) {
+            role = Role.ADMIN;
+        }
+
+        // Update the role in the playerDTO
+        playerDTO.setRole(role);
+
+        // Create a new Player entity from the provided PlayerDTO
+        Player player = new Player(playerDTO.getName(), playerDTO.getEmail(), encodedPassword, playerDTO.getRole());
+
 
         try {
             // Save the new player to the repository
@@ -75,7 +85,9 @@ public class PlayerServiceImpl implements PlayerService {
             long totalPlayedGames = gameRepository.countByPlayerId(savedPlayer.getId());
 
             // Create and return a PlayerDTO from the saved Player entity and total played games
-            return new PlayerDTO(savedPlayer);
+            PlayerDTO savedPlayerDTO = new PlayerDTO(savedPlayer);
+            savedPlayerDTO.setTotalPlayedGames(totalPlayedGames);
+            return savedPlayerDTO;
 
         } catch (Exception e) {
             // Handle any exceptions that occur during the save operation
@@ -83,7 +95,8 @@ public class PlayerServiceImpl implements PlayerService {
         }
     }
 
-        @Override
+
+    @Override
         public PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO) {
             Player player = playerRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Update Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
