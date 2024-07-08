@@ -34,6 +34,12 @@ public class PlayerController {
 
     @PostMapping
     public ResponseEntity<PlayerDTO>createPlayer(@RequestBody PlayerDTO playerDTO) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))) {
+        throw new InsufficientAuthenticationException("You don't have permissions to access this resource");
+        }
+
        PlayerDTO userCreated = playerService.createPlayer(playerDTO);
         return new ResponseEntity<>(userCreated, createHeaders(token), HttpStatus.CREATED) ;
     }
@@ -49,12 +55,7 @@ public class PlayerController {
     @GetMapping
    // @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<PlayerDTO>> getAllPlayers(HttpServletRequest request) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // Check if user has ADMIN role
-        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))) {
-            throw new InsufficientAuthenticationException("You don't have permissions to access this resource");
-        }
         String token = request.getHeader("Authorization");
 
         List<PlayerDTO> players = playerService.getAllPlayers();

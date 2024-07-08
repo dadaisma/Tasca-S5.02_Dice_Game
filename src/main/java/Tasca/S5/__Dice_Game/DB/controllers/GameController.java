@@ -6,6 +6,10 @@ import Tasca.S5.__Dice_Game.DB.utils.HeaderUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -39,6 +43,10 @@ public class GameController {
 
     @DeleteMapping
     public ResponseEntity<Void> deletePlayerGames(@PathVariable String playerId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))) {
+            throw new InsufficientAuthenticationException("You don't have permissions to access this resource");
+        }
         gameService.deletePlayerGames(playerId);
         return new ResponseEntity<>(createHeaders(token), HttpStatus.NO_CONTENT);
     }

@@ -34,12 +34,13 @@ public class PlayerDTO {
     }
 
     public PlayerDTO(Player player) {
+
         this.id = player.getId();
         this.name = player.getName();
         this.registrationDate = player.getRegistrationDate();
         this.email = player.getEmail();
         this.password = player.getPassword();
-       this.role = player.getRole();
+        this.role = player.getRole();
 
     }
     public void setSuccessRate(double successRate) {

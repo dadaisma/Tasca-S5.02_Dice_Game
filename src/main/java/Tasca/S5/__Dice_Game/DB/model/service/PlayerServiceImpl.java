@@ -10,6 +10,10 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,7 +102,17 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
         public PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO) {
-            Player player = playerRepository.findById(id)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserId = ((Player) authentication.getPrincipal()).getId();
+        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"));
+
+
+        if (!isAdmin && !id.equals(currentUserId)) {
+            throw new InsufficientAuthenticationException("You don't have permissions to modify this player's data");
+        }
+
+
+        Player player = playerRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException("Update Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
 
             if (StringUtils.isEmpty(playerDTO.getName())) {

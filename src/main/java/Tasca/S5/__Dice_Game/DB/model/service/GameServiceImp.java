@@ -7,6 +7,10 @@ import Tasca.S5.__Dice_Game.DB.model.repository.GameRepository;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,6 +46,15 @@ public class GameServiceImp implements GameService {
 
     @Override
     public GameDTO createGame(String playerId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserId = ((Player) authentication.getPrincipal()).getId();
+        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"));
+
+
+        if (!isAdmin && !playerId.equals(currentUserId)) {
+            throw new InsufficientAuthenticationException("You don't have permissions to modify this player's data");
+        }
+
         if (playerId == null) {
             throw new IllegalArgumentException("Player ID cannot be null");
         }
