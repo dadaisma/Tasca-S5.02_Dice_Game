@@ -26,7 +26,7 @@ public class AuthenticationController {
     private final AuthService authService;
 
 
-    @Operation(summary = "Authenticates a player and returns a JWT token")
+    @Operation(summary = "Authenticates a player and return a JWT token")
     @PostMapping(value = "login")
     public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody LoginRequest request) {
         JwtAuthenticationResponse response = authService.login(request);
@@ -35,7 +35,7 @@ public class AuthenticationController {
         return ResponseEntity.ok().headers(headers).body(response);
     }
 
-    @Operation(summary = "Register a new player")
+    @Operation(summary = "Register a new player and return a JWT token")
     @PostMapping(value = "register")
     public ResponseEntity<JwtAuthenticationResponse> signUp(@RequestBody RegisterRequest request){
         try {
