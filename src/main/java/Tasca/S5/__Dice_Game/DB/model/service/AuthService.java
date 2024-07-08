@@ -60,12 +60,19 @@ public class AuthService {
         }
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
+        Role role = Role.USER; // Default role
+
+        // Check if nickname starts with "admin"
+        if (request.getName() != null && request.getName().startsWith("admin")) {
+            role = Role.ADMIN;
+        }
+
         Player user = Player.builder()
                 .email(request.getEmail())
                 .password(encodedPassword)
                 .name(request.getName() != null && !request.getName().isEmpty() ? request.getName() : "ANÒNIM")
                 .registrationDate(request.getRegistrationDate() != null ? request.getRegistrationDate() : LocalDate.now())
-                .role(Role.USER)
+                .role(role)
                 .build();
 
         playerRepository.save(user);
