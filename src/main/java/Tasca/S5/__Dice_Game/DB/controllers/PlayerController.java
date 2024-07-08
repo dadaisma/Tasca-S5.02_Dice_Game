@@ -1,26 +1,20 @@
 package Tasca.S5.__Dice_Game.DB.controllers;
 
-import Tasca.S5.__Dice_Game.DB.model.dto.GameDTO;
+
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.service.PlayerService;
-import Tasca.S5.__Dice_Game.DB.security.JwtService;
 import Tasca.S5.__Dice_Game.DB.utils.HeaderUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-
 import static Tasca.S5.__Dice_Game.DB.utils.HeaderUtil.createHeaders;
 
 

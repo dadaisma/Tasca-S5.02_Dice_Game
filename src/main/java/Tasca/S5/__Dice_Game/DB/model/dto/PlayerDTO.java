@@ -26,6 +26,7 @@ public class PlayerDTO {
     private long totalPlayedGames;
 
     public PlayerDTO(String name, String email, String password) {
+
         this.name = (name != null && !name.isEmpty()) ? name : "ANÒNIM";
         this.registrationDate = LocalDate.now();
         this.email = email;
