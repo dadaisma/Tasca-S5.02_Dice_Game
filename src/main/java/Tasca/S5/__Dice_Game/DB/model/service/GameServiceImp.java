@@ -48,7 +48,7 @@ public class GameServiceImp implements GameService {
     public GameDTO createGame(String playerId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserId = ((Player) authentication.getPrincipal()).getId();
-        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"));
+        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
 
         if (!isAdmin && !playerId.equals(currentUserId)) {

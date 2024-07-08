@@ -30,7 +30,7 @@ public class PlayerDTO {
         this.registrationDate = LocalDate.now();
         this.email = email;
         this.password = password;
-        //this.role = Role.USER;
+        //this.role = Role.ROLE_USER;
     }
 
     public PlayerDTO(Player player) {

@@ -19,6 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import java.time.LocalDate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +54,14 @@ public class AuthService {
             throw new IllegalArgumentException("Email cannot be empty");
         }
 
+
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(request.getEmail());
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+
         if (StringUtils.isEmpty(request.getPassword())) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
@@ -60,11 +70,11 @@ public class AuthService {
         }
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
-        Role role = Role.USER; // Default role
+        Role role = Role.ROLE_USER; // Default role
 
         // Check if nickname starts with "admin"
         if (request.getName() != null && request.getName().startsWith("admin")) {
-            role = Role.ADMIN;
+            role = Role.ROLE_ADMIN;
         }
 
         Player user = Player.builder()

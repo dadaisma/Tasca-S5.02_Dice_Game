@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,6 +50,13 @@ public class PlayerServiceImpl implements PlayerService {
             throw new IllegalArgumentException("Email cannot be empty");
         }
 
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(playerDTO.getEmail());
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+
         if (StringUtils.isEmpty(playerDTO.getPassword())) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
@@ -67,11 +76,20 @@ public class PlayerServiceImpl implements PlayerService {
         if (playerRepository.findByEmail(playerDTO.getEmail()).isPresent()) {
             throw new EntityExistsException("Create new Player Failed: Invalid email: " + playerDTO.getEmail() + " -> ALREADY EXISTS in DataBase");
         }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserId = ((Player) authentication.getPrincipal()).getId();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
+
+
+        if (isAdmin && playerDTO.getRole() != null) {
+            playerDTO.setRole(playerDTO.getRole());
+        }
 
         // Determine the role based on the nickname
-        Role role = Role.USER; // Default role
+        Role role = Role.ROLE_USER; // Default role
         if (playerDTO.getName() != null && playerDTO.getName().toLowerCase().contains("admin")) {
-            role = Role.ADMIN;
+            role = Role.ROLE_ADMIN;
         }
 
         // Update the role in the playerDTO
@@ -104,7 +122,8 @@ public class PlayerServiceImpl implements PlayerService {
         public PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserId = ((Player) authentication.getPrincipal()).getId();
-        boolean isAdmin = authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"));
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
 
 
         if (!isAdmin && !id.equals(currentUserId)) {
@@ -121,6 +140,15 @@ public class PlayerServiceImpl implements PlayerService {
             if (StringUtils.isEmpty(playerDTO.getEmail())) {
                 throw new IllegalArgumentException("Email cannot be empty");
             }
+
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(playerDTO.getEmail());
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+
+
             if (StringUtils.isEmpty(playerDTO.getPassword())) {
                 throw new IllegalArgumentException("Password cannot be empty");
             }
@@ -130,6 +158,13 @@ public class PlayerServiceImpl implements PlayerService {
             player.setName(playerDTO.getName());
             player.setEmail(playerDTO.getEmail());
             player.setPassword(encodedPassword);
+
+
+            if (isAdmin && playerDTO.getRole() != null) {
+            player.setRole(playerDTO.getRole());
+            }
+
+
             Player updatedPlayer = playerRepository.save(player);
 
             double successRate = calculateSuccessRate(player.getId());

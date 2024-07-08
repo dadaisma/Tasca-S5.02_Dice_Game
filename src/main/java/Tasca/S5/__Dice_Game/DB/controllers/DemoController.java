@@ -19,8 +19,8 @@ public class DemoController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         System.out.println("Authorities: " + authentication.getAuthorities()); // Print authorities for debugging
 
-        // Check if user has ADMIN role
-        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))) {
+        // Check if user has ROLE_ADMIN role
+        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
             throw new InsufficientAuthenticationException("You don't have permissions to access this resource");
         }
 

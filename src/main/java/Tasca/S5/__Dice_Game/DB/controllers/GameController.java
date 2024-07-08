@@ -44,7 +44,7 @@ public class GameController {
     @DeleteMapping
     public ResponseEntity<Void> deletePlayerGames(@PathVariable String playerId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ADMIN"))) {
+        if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
             throw new InsufficientAuthenticationException("You don't have permissions to access this resource");
         }
         gameService.deletePlayerGames(playerId);
