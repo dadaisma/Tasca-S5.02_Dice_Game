@@ -1,9 +1,7 @@
 package Tasca.S5.__Dice_Game.DB.security;
 
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,9 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.GrantedAuthority;
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -27,6 +23,7 @@ public class JwtService {
     @Value("${security.jwt.expiration-time}")
     private Long jwtExpiration;
 
+    private Set<String> invalidatedTokens = new HashSet<>();
    // private static final Key SECRECT_KEY= Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public String getToken(UserDetails user) {
@@ -88,4 +85,45 @@ public class JwtService {
     public long getExpirationTime() {
         return jwtExpiration;
     }
+
+    public boolean validateToken(String token) {
+        if (invalidatedTokens.contains(token)) {
+            return false;
+        }
+
+        try {
+            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            return true;
+        } catch (MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException ex) {
+            return false;
+        }
+    }
+
+    public String invalidateToken(String token) {
+        // Decode the token to get its claims
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSignInKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        // Set the expiration date to one day in the past
+        claims.setExpiration(new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000));
+
+        // Rebuild the token with the updated claims
+        String invalidatedToken = Jwts.builder()
+                .setClaims(claims)
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+
+        // Add the invalidated token to the blacklist
+        invalidatedTokens.add(invalidatedToken);
+
+
+       // System.out.println("Invalidated Token: " + invalidatedToken);
+
+        return invalidatedToken;
+    }
+
 }
+

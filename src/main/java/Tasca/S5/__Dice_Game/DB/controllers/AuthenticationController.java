@@ -4,6 +4,7 @@ import Tasca.S5.__Dice_Game.DB.dao.LoginRequest;
 import Tasca.S5.__Dice_Game.DB.dao.RegisterRequest;
 import Tasca.S5.__Dice_Game.DB.dao.response.JwtAuthenticationResponse;
 import Tasca.S5.__Dice_Game.DB.model.service.AuthService;
+import Tasca.S5.__Dice_Game.DB.security.JwtService;
 import Tasca.S5.__Dice_Game.DB.utils.HeaderUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.persistence.EntityExistsException;
@@ -11,10 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     private final AuthService authService;
-
+    private final JwtService jwtService;
 
     @Operation(summary = "Authenticates a player and return a JWT token")
     @PostMapping(value = "login")
@@ -47,4 +46,29 @@ public class AuthenticationController {
         }
     }
 
+    @Operation(summary = "Log out and invalidate the JWT token")
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            // Extract the JWT token from the Authorization header
+            String jwt = extractJwtFromAuthorizationHeader(authorizationHeader);
+
+            // Invalidate the token by setting its expiration to one day before
+            String invalidatedToken = jwtService.invalidateToken(jwt);
+
+            // Print the invalidated token to verify (optional)
+            System.out.println("Invalidated Token: " + invalidatedToken);
+
+            return new ResponseEntity<>("Logged out successfully.\n Invalidated Token: " + invalidatedToken, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error logging out: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private String extractJwtFromAuthorizationHeader(String authorizationHeader) {
+        if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7); // "Bearer " length is 7
+        }
+        throw new IllegalArgumentException("Authorization header format is incorrect");
+    }
 }
