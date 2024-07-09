@@ -24,7 +24,6 @@ public class JwtService {
     private Long jwtExpiration;
 
     private Set<String> invalidatedTokens = new HashSet<>();
-   // private static final Key SECRECT_KEY= Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
     public String getToken(UserDetails user) {
         Map<String, Object> claims = new HashMap<>();
@@ -119,8 +118,6 @@ public class JwtService {
         // Add the invalidated token to the blacklist
         invalidatedTokens.add(invalidatedToken);
 
-
-       // System.out.println("Invalidated Token: " + invalidatedToken);
 
         return invalidatedToken;
     }

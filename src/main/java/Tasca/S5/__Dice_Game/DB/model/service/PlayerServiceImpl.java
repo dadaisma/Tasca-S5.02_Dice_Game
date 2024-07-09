@@ -112,7 +112,7 @@ public class PlayerServiceImpl implements PlayerService {
             return savedPlayerDTO;
 
         } catch (Exception e) {
-            // Handle any exceptions that occur during the save operation
+
             throw new RuntimeException("Failed to create player: " + e.getMessage(), e);
         }
     }

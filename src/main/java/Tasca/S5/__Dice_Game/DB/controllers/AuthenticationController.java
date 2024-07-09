@@ -67,7 +67,7 @@ public class AuthenticationController {
 
     private String extractJwtFromAuthorizationHeader(String authorizationHeader) {
         if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7); // "Bearer " length is 7
+            return authorizationHeader.substring(7);
         }
         throw new IllegalArgumentException("Authorization header format is incorrect");
     }

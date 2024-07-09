@@ -17,7 +17,7 @@ public class DemoController {
     @PostMapping(value ="demo")
         public String welcome(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("Authorities: " + authentication.getAuthorities()); // Print authorities for debugging
+       // System.out.println("Authorities: " + authentication.getAuthorities());
 
         // Check if user has ROLE_ADMIN role
         if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
