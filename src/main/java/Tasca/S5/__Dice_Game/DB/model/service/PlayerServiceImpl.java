@@ -223,7 +223,9 @@ public class PlayerServiceImpl implements PlayerService {
                 .mapToLong(player -> gameRepository.countByPlayerId(player.getId()))
                 .sum();
 
-        return String.format("The success rate is %.2f %% on an overall of  %d games played", averageSuccessRate, totalGamesPlayed);
+        Integer totalPlayers = players.size();
+
+        return String.format("The success rate is %.2f %% on an overall of  %d games played and %d players registered", averageSuccessRate, totalGamesPlayed, totalPlayers);
     }
 
     private double calculateSuccessRate(String playerId) {
