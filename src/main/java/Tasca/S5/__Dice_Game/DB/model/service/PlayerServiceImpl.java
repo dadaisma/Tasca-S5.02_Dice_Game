@@ -81,6 +81,9 @@ public class PlayerServiceImpl implements PlayerService {
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
 
+        if (!isAdmin) {
+            throw new InsufficientAuthenticationException("You don't have permissions to access this resource");
+        }
 
         if (isAdmin && playerDTO.getRole() != null) {
             playerDTO.setRole(playerDTO.getRole());

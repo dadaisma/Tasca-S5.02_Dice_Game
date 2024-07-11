@@ -49,7 +49,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(InsufficientAuthenticationException.class)
     public ResponseEntity<String> handleInsufficientAuthenticationException(InsufficientAuthenticationException ex) {
-        return new ResponseEntity<>("You don't have permissions to access this resource", HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)

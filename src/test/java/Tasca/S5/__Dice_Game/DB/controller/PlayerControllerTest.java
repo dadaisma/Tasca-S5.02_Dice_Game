@@ -1,11 +1,8 @@
 package Tasca.S5.__Dice_Game.DB.controller;
 
-
-
 import Tasca.S5.__Dice_Game.DB.controllers.PlayerController;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.service.PlayerService;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,20 +11,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
-
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-import static com.jayway.jsonpath.internal.path.PathCompiler.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,9 +33,13 @@ public class PlayerControllerTest {
     @InjectMocks
     private PlayerController playerController;
 
+    @Mock
+    private Authentication authentication;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
@@ -207,40 +202,23 @@ public class PlayerControllerTest {
         verify(playerService, times(1)).getPlayerWithHighestSuccessRate();
     }
 
-    @Test
-    public void testCreatePlayer_NonAdmin_Failure() {
-        // Given
-        PlayerDTO playerDTO = new PlayerDTO("userpippo", "player1@example.com", "password");
-
-        // Mock authentication as a non-admin user
-     //   mockAuthentication("ROLE_USER");
-
-        // When/Then
-     //   ResponseEntity<PlayerDTO> response = playerController.createPlayer(playerDTO);
-      //  assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-    //    assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-       InsufficientAuthenticationException exception = assertThrows(InsufficientAuthenticationException.class, () -> {
-            playerController.createPlayer(playerDTO);
-        });
-
-       assertEquals("You don't have permissions to access this resource", exception.getMessage());
-        verify(playerService, never()).createPlayer(any(PlayerDTO.class));
-    }
 
     @Test
     public void testCreatePlayer_NonAdmin_Unauthorized() {
         // Given
+
         PlayerDTO playerDTO = new PlayerDTO("userpippo", "player1@example.com", "password");
 
         // Mock authentication as a non-admin user (this depends on your authentication setup)
         mockAuthentication("ROLE_USER");
 
-        // When
-        ResponseEntity<PlayerDTO> response = playerController.createPlayer(playerDTO);
+        // When / Then
+        InsufficientAuthenticationException exception = assertThrows(
+                InsufficientAuthenticationException.class,
+                () -> playerController.createPlayer(playerDTO)
+        );
 
-        // Then
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode()); //depending on your application logic
+        assertEquals("You don't have permissions to access this resource", exception.getMessage());
 
         verify(playerService, never()).createPlayer(any(PlayerDTO.class));
     }
