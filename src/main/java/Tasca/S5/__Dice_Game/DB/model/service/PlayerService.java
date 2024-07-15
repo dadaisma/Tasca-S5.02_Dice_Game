@@ -2,6 +2,7 @@ package Tasca.S5.__Dice_Game.DB.model.service;
 
 import Tasca.S5.__Dice_Game.DB.model.domain.Role;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
+import jakarta.annotation.PostConstruct;
 
 import java.util.List;
 

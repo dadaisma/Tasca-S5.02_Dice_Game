@@ -7,17 +7,18 @@ import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.repository.GameRepository;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
 import io.micrometer.common.util.StringUtils;
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -269,5 +270,24 @@ public class PlayerServiceImpl implements PlayerService {
                 .orElse(null);
     }
 
+
+
+    @PostConstruct
+    public void createAdminIfNotExists() {
+        boolean adminExists = playerRepository.findByEmail("admin@admin.com").isPresent();
+
+        if (!adminExists) {
+            Player admin = Player.builder()
+                    .email("admin@admin.com")
+                    .name("admin")
+                    .password(passwordEncoder.encode("admin"))
+                    .role(Role.ROLE_ADMIN)
+                    .registrationDate(LocalDate.now())
+                    .build();
+
+            playerRepository.save(admin);
+        }
+
+    }
 
 }
