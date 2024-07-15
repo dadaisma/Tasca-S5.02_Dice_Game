@@ -85,15 +85,13 @@ public class AuthenticationControllerTest {
         // Given
         String authorizationHeader = "Bearer token";
         String jwt = "token";
-        String invalidatedToken = "invalidatedToken";
-        when(jwtService.invalidateToken(jwt)).thenReturn(invalidatedToken);
 
         // When
         ResponseEntity<String> responseEntity = authenticationController.logout(authorizationHeader);
 
         // Then
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals("Logged out successfully.\n Invalidated Token: " + invalidatedToken, responseEntity.getBody());
+        assertEquals("Logged out successfully.", responseEntity.getBody());
         verify(jwtService, times(1)).invalidateToken(jwt);
     }
 
