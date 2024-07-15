@@ -1,6 +1,7 @@
 package Tasca.S5.__Dice_Game.DB.model.service;
 
 import Tasca.S5.__Dice_Game.DB.model.domain.Role;
+import Tasca.S5.__Dice_Game.DB.model.dto.CustomPlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import jakarta.annotation.PostConstruct;
 
@@ -12,17 +13,17 @@ public interface PlayerService {
 
     PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO);
 
-    List<PlayerDTO> getAllPlayers();
+    List<Object> getAllPlayers();
 
-    PlayerDTO getPlayerById(String id);
+    CustomPlayerDTO getPlayerById(String id);
 
     String getAverageSuccessRate();
 
     long calculateTotalPlayedGames(String playerId);
 
-    PlayerDTO getPlayerWithLowestSuccessRate();
+    CustomPlayerDTO getPlayerWithLowestSuccessRate();
 
-    PlayerDTO getPlayerWithHighestSuccessRate();
+    CustomPlayerDTO getPlayerWithHighestSuccessRate();
 
 
 }

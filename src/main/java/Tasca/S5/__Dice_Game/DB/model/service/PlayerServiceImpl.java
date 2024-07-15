@@ -3,6 +3,7 @@ package Tasca.S5.__Dice_Game.DB.model.service;
 import Tasca.S5.__Dice_Game.DB.model.domain.Game;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import Tasca.S5.__Dice_Game.DB.model.domain.Role;
+import Tasca.S5.__Dice_Game.DB.model.dto.CustomPlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.repository.GameRepository;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
@@ -44,6 +45,9 @@ public class PlayerServiceImpl implements PlayerService {
     @Autowired
     private GameRepository gameRepository;
 
+    @Autowired
+    private PlayerMapper playerMapper;
+
 
     @Override
     public PlayerDTO createPlayer(PlayerDTO playerDTO) {
@@ -63,6 +67,7 @@ public class PlayerServiceImpl implements PlayerService {
         }
 
         String encodedPassword = passwordEncoder.encode(playerDTO.getPassword());
+
 
 
         if (playerDTO.getName() == null || playerDTO.getName().isEmpty()) {
@@ -182,7 +187,7 @@ public class PlayerServiceImpl implements PlayerService {
 
 
     @Override
-    public PlayerDTO getPlayerById(String id) {
+    public CustomPlayerDTO getPlayerById(String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
@@ -194,15 +199,11 @@ public class PlayerServiceImpl implements PlayerService {
             throw new InsufficientAuthenticationException("You don't have permissions to view this player's data");
         }
 
-        PlayerDTO playerDTO = new PlayerDTO(player);
-        double successRate = calculateSuccessRate(player.getId());
-        playerDTO.setSuccessRate(successRate);
-        playerDTO.setTotalPlayedGames(calculateTotalPlayedGames(player.getId()));
-        return playerDTO;
+        return playerMapper.toCustomPlayerDTO(player);
     }
 
     @Override
-    public List<PlayerDTO> getAllPlayers() {
+    public List<Object> getAllPlayers() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
@@ -210,12 +211,16 @@ public class PlayerServiceImpl implements PlayerService {
         return playerRepository.findAll().stream()
                 .filter(player -> isAdmin || player.getRole() != Role.ROLE_ADMIN) // Exclude ROLE_ADMIN players if the current user is not an admin
                 .map(player -> {
-                    PlayerDTO playerDTO = new PlayerDTO(player);
-                    double successRate = calculateSuccessRate(player.getId());
-                    playerDTO.setSuccessRate(successRate);
-                    long totalPlayedGames = calculateTotalPlayedGames(player.getId());
-                    playerDTO.setTotalPlayedGames(totalPlayedGames);
-                    return playerDTO;
+                    if (isAdmin) {
+                        PlayerDTO playerDTO = new PlayerDTO(player);
+                        double successRate = calculateSuccessRate(player.getId());
+                        playerDTO.setSuccessRate(successRate);
+                        long totalPlayedGames = calculateTotalPlayedGames(player.getId());
+                        playerDTO.setTotalPlayedGames(totalPlayedGames);
+                        return playerDTO;
+                    } else {
+                        return playerMapper.toCustomPlayerDTO(player);
+                    }
                 })
                 .collect(Collectors.toList());
     }
@@ -263,30 +268,20 @@ public class PlayerServiceImpl implements PlayerService {
 
 
     @Override
-    public PlayerDTO getPlayerWithLowestSuccessRate() {
+    public CustomPlayerDTO getPlayerWithLowestSuccessRate() {
         return playerRepository.findAll().stream()
                 .filter(player -> player.getRole() != Role.ROLE_ADMIN) // Exclude ROLE_ADMIN players
                 .min(Comparator.comparingDouble(player -> calculateSuccessRate(player.getId())))
-                .map(player -> {
-                    PlayerDTO playerDTO = new PlayerDTO(player);
-                    playerDTO.setSuccessRate(calculateSuccessRate(player.getId()));
-                    playerDTO.setTotalPlayedGames(gameRepository.countByPlayerId(player.getId()));
-                    return playerDTO;
-                })
+                .map(playerMapper::toCustomPlayerDTO)
                 .orElse(null);
     }
 
     @Override
-    public PlayerDTO getPlayerWithHighestSuccessRate() {
+    public CustomPlayerDTO getPlayerWithHighestSuccessRate() {
         return playerRepository.findAll().stream()
                 .filter(player -> player.getRole() != Role.ROLE_ADMIN)
                 .max(Comparator.comparingDouble(player -> calculateSuccessRate(player.getId())))
-                .map(player -> {
-                    PlayerDTO playerDTO = new PlayerDTO(player);
-                    playerDTO.setSuccessRate(calculateSuccessRate(player.getId()));
-                    playerDTO.setTotalPlayedGames(gameRepository.countByPlayerId(player.getId()));
-                    return playerDTO;
-                })
+                .map(playerMapper::toCustomPlayerDTO)
                 .orElse(null);
     }
 

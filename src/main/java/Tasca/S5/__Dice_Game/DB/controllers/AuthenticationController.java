@@ -25,6 +25,8 @@ public class AuthenticationController {
     private final AuthService authService;
     private final JwtService jwtService;
 
+
+
     @Operation(summary = "Authenticates a player and return a JWT token")
     @PostMapping(value = "login")
     public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody LoginRequest request) {
@@ -37,35 +39,18 @@ public class AuthenticationController {
     @Operation(summary = "Register a new player and return a JWT token")
     @PostMapping(value = "register")
     public ResponseEntity<JwtAuthenticationResponse> signUp(@RequestBody RegisterRequest request){
-        try {
+
             JwtAuthenticationResponse response = authService.signUp(request);
             HttpHeaders headers = HeaderUtil.createHeaders(response.getToken());
             return ResponseEntity.ok().headers(headers).body(response);
-        } catch (EntityExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new JwtAuthenticationResponse(e.getMessage(), 0));
-        }
+
     }
 
     @Operation(summary = "Log out and invalidate the JWT token")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader("Authorization") String authorizationHeader) {
-        try {
-            // Extract the JWT token from the Authorization header
-            String jwt = extractJwtFromAuthorizationHeader(authorizationHeader);
-
-            // Invalidate the token
-            jwtService.invalidateToken(jwt);
-
-            return new ResponseEntity<>("Logged out successfully.", HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Error logging out: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return authService.logout(authorizationHeader);
     }
 
-    private String extractJwtFromAuthorizationHeader(String authorizationHeader) {
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7);
-        }
-        throw new IllegalArgumentException("Invalid Authorization header format.");
-    }
+
 }

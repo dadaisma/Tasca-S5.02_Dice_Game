@@ -156,4 +156,12 @@ public class PlayerServiceImplTest {
         // Then
         assertEquals(10, totalPlayedGames);
     }
+
+    @Test
+    public void testCreatePlayer_WithInvalidEmail() {
+        PlayerDTO playerDTO = new PlayerDTO("John Doe", "invalid.email", "password");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> playerService.createPlayer(playerDTO));
+        assertEquals("Invalid email format", exception.getMessage());
+    }
 }

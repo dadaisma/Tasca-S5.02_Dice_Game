@@ -13,19 +13,20 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
+
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
 
 public class AuthServiceContractTest {
 
@@ -59,7 +60,7 @@ public class AuthServiceContractTest {
         // Mock player and userDetails
         Player player = Player.builder()
                 .email(request.getEmail())
-                .password("encodedPassword") // Replace with actual encoded password
+                .password("encodedPassword")
                 .build();
 
         UserDetails userDetails = player;

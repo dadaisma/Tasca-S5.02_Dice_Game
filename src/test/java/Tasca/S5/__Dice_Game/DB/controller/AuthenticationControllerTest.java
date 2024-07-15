@@ -3,24 +3,20 @@ package Tasca.S5.__Dice_Game.DB.controller;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-
 import Tasca.S5.__Dice_Game.DB.dao.LoginRequest;
 import Tasca.S5.__Dice_Game.DB.dao.RegisterRequest;
 import Tasca.S5.__Dice_Game.DB.dao.response.JwtAuthenticationResponse;
 import Tasca.S5.__Dice_Game.DB.model.service.AuthService;
 import Tasca.S5.__Dice_Game.DB.security.JwtService;
 import Tasca.S5.__Dice_Game.DB.controllers.AuthenticationController;
-import jakarta.persistence.EntityExistsException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-//import javax.persistence.EntityExistsException;
 
 public class AuthenticationControllerTest {
 
@@ -77,14 +73,12 @@ public class AuthenticationControllerTest {
     }
 
 
-
-
-
     @Test
     public void testLogout_Success() {
         // Given
         String authorizationHeader = "Bearer token";
-        String jwt = "token";
+        ResponseEntity<String> expectedResponse = new ResponseEntity<>("Logged out successfully.", HttpStatus.OK);
+        when(authService.logout(authorizationHeader)).thenReturn(expectedResponse);
 
         // When
         ResponseEntity<String> responseEntity = authenticationController.logout(authorizationHeader);
@@ -92,20 +86,21 @@ public class AuthenticationControllerTest {
         // Then
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertEquals("Logged out successfully.", responseEntity.getBody());
-        verify(jwtService, times(1)).invalidateToken(jwt);
+        verify(authService, times(1)).logout(authorizationHeader);
     }
 
+
     @Test
-    public void testLogout_InvalidAuthorizationHeader() {
+    public void testLogout_AuthServiceThrowsUnauthorizedException() {
         // Given
-        String authorizationHeader = "InvalidHeader";
+        String validAuthorizationHeader = "Bearer expiredToken";
+        when(authService.logout(validAuthorizationHeader)).thenReturn(new ResponseEntity<>("Invalid or expired token.", HttpStatus.UNAUTHORIZED));
 
         // When
-        ResponseEntity<String> responseEntity = authenticationController.logout(authorizationHeader);
+        ResponseEntity<String> responseEntity = authenticationController.logout(validAuthorizationHeader);
 
         // Then
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
-        assertTrue(responseEntity.getBody().startsWith("Error logging out:"));
-        verify(jwtService, never()).invalidateToken(anyString());
+        assertEquals(HttpStatus.UNAUTHORIZED, responseEntity.getStatusCode());
+        assertEquals("Invalid or expired token.", responseEntity.getBody());
     }
 }

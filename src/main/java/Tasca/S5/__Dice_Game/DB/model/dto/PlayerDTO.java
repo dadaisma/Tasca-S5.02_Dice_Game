@@ -13,15 +13,14 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @Data
+@Builder
 public class PlayerDTO {
 
     private String id;
     private String name;
     private String email;
-    @JsonIgnore
     private String password;
     private LocalDate registrationDate;
-    @JsonIgnore
     private Role role;
 
     private String successRate;
@@ -47,6 +46,8 @@ public class PlayerDTO {
         this.role = player.getRole();
 
     }
+
+
     public void setSuccessRate(double successRate) {
         DecimalFormat df = new DecimalFormat("0.00");
         this.successRate = df.format(successRate) + " %";

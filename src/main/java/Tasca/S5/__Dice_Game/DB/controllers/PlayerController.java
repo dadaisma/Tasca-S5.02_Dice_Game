@@ -1,12 +1,14 @@
 package Tasca.S5.__Dice_Game.DB.controllers;
 
 
+import Tasca.S5.__Dice_Game.DB.model.dto.CustomPlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.service.PlayerService;
 import Tasca.S5.__Dice_Game.DB.utils.HeaderUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -52,40 +54,41 @@ public class PlayerController {
     @Operation(summary = "GET all players")
     @GetMapping
    // @PreAuthorize("hasRole('ROLE_ROLE_ADMIN')")
-    public ResponseEntity<List<PlayerDTO>> getAllPlayers(HttpServletRequest request) {
+    public ResponseEntity<List<Object>> getAllPlayers(HttpServletRequest request) {
 
         String token = request.getHeader("Authorization");
 
-        List<PlayerDTO> players = playerService.getAllPlayers();
+        List<Object> players = playerService.getAllPlayers();
         return new ResponseEntity<>(players, createHeaders(token), HttpStatus.OK);
     }
 
     @Operation(summary = "find a player by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<PlayerDTO> getPlayerById(@PathVariable String id) {
-        PlayerDTO userById = playerService.getPlayerById(id);
-        return new ResponseEntity<>(userById, createHeaders(token), HttpStatus.OK);
+    public ResponseEntity<CustomPlayerDTO> getPlayerById(@PathVariable String id) {
+        CustomPlayerDTO userById = playerService.getPlayerById(id);
+        return new ResponseEntity<>(userById, HttpStatus.OK);
     }
 
     @Operation(summary = "check total games played and % of success overall")
     @GetMapping("/ranking")
     public ResponseEntity<String> getAverageSuccessRate() {
         String averageSuccessRate = playerService.getAverageSuccessRate();
-        return new ResponseEntity<>(averageSuccessRate, createHeaders(token), HttpStatus.OK);
+        return new ResponseEntity<>(averageSuccessRate,  HttpStatus.OK);
     }
 
     @Operation(summary = "list worst player")
     @GetMapping("/ranking/loser")
-    public ResponseEntity<PlayerDTO> getPlayerWithLowestSuccessRate() {
-        PlayerDTO loser = playerService.getPlayerWithLowestSuccessRate();
-        return new ResponseEntity<>(loser, createHeaders(token), HttpStatus.OK);
+    public ResponseEntity<CustomPlayerDTO> getPlayerWithLowestSuccessRate() {
+        CustomPlayerDTO loser = playerService.getPlayerWithLowestSuccessRate();
+        return new ResponseEntity<>(loser,  HttpStatus.OK);
     }
 
     @Operation(summary = "list better player")
     @GetMapping("/ranking/winner")
-    public ResponseEntity<PlayerDTO> getPlayerWithHighestSuccessRate() {
-        PlayerDTO winner = playerService.getPlayerWithHighestSuccessRate();
-        return new ResponseEntity<>(winner, createHeaders(token),HttpStatus.OK);
+    public ResponseEntity<CustomPlayerDTO> getPlayerWithHighestSuccessRate() {
+        CustomPlayerDTO winner = playerService.getPlayerWithHighestSuccessRate();
+
+        return new ResponseEntity<>(winner, HttpStatus.OK);
     }
 
 

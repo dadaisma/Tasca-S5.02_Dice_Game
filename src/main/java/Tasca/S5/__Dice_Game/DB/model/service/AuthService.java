@@ -11,6 +11,8 @@ import Tasca.S5.__Dice_Game.DB.utils.HeaderUtil;
 import jakarta.persistence.EntityExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -97,5 +99,28 @@ public class AuthService {
                 .build();
     }
 
+    public ResponseEntity<String> logout(String authorizationHeader) {
+        try {
+            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+                return new ResponseEntity<>("Invalid Authorization header.", HttpStatus.BAD_REQUEST);
+            }
 
+            String jwt = extractJwtFromAuthorizationHeader(authorizationHeader);
+            if (!jwtService.validateToken(jwt)) {
+                return new ResponseEntity<>("Invalid or expired token.", HttpStatus.UNAUTHORIZED);
+            }
+
+            jwtService.invalidateToken(jwt);
+            return new ResponseEntity<>("Logged out successfully.", HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>("Error logging out: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private String extractJwtFromAuthorizationHeader(String authorizationHeader) {
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7);
+        }
+        throw new IllegalArgumentException("Invalid Authorization header format.");
+    }
 }

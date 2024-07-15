@@ -1,6 +1,7 @@
 package Tasca.S5.__Dice_Game.DB.controller;
 
 import Tasca.S5.__Dice_Game.DB.controllers.PlayerController;
+import Tasca.S5.__Dice_Game.DB.model.dto.CustomPlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.service.PlayerService;
 import org.junit.jupiter.api.BeforeEach;
@@ -111,9 +112,9 @@ public class PlayerControllerTest {
     @Test
     public void testGetAllPlayers_Admin_Success() {
         // Given
-        List<PlayerDTO> playerDTOList = List.of(
-                new PlayerDTO( "Player One", "player1@example.com", "password"),
-                new PlayerDTO( "Player Two", "player2@example.com", "password")
+        List<Object> playerDTOList = List.of(
+                new PlayerDTO("Player One", "player1@example.com", "password"),
+                new PlayerDTO("Player Two", "player2@example.com", "password")
         );
         when(playerService.getAllPlayers()).thenReturn(playerDTOList);
 
@@ -121,7 +122,7 @@ public class PlayerControllerTest {
         mockAuthentication("ROLE_ADMIN");
 
         // When
-        ResponseEntity<List<PlayerDTO>> response = playerController.getAllPlayers(mock(HttpServletRequest.class));
+        ResponseEntity<List<Object>> response = playerController.getAllPlayers(mock(HttpServletRequest.class));
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -129,22 +130,25 @@ public class PlayerControllerTest {
         verify(playerService, times(1)).getAllPlayers();
     }
 
+
     @Test
     public void testGetPlayerById_Admin_Success() {
         // Given
         String playerId = "player1";
-        PlayerDTO playerDTO = new PlayerDTO( "Player One", "player1@example.com", "password");
-        when(playerService.getPlayerById(eq(playerId))).thenReturn(playerDTO);
+        CustomPlayerDTO customPlayerDTO = new CustomPlayerDTO("Player One", "player1@example.com","40%",3);
+
+        // Mock the service method to return CustomPlayerDTO
+        when(playerService.getPlayerById(eq(playerId))).thenReturn(customPlayerDTO);
 
         // Mock authentication as ADMIN
         mockAuthentication("ROLE_ADMIN");
 
         // When
-        ResponseEntity<PlayerDTO> response = playerController.getPlayerById(playerId);
+        ResponseEntity<CustomPlayerDTO> response = playerController.getPlayerById(playerId);
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(playerDTO, response.getBody());
+        assertEquals(customPlayerDTO, response.getBody());
         verify(playerService, times(1)).getPlayerById(eq(playerId));
     }
 
@@ -169,14 +173,14 @@ public class PlayerControllerTest {
     @Test
     public void testGetPlayerWithLowestSuccessRate_Admin_Success() {
         // Given
-        PlayerDTO loser = new PlayerDTO( "Player One", "player1@example.com", "password");
+        CustomPlayerDTO loser = new CustomPlayerDTO("Player One", "player1@example.com","3%",199);
         when(playerService.getPlayerWithLowestSuccessRate()).thenReturn(loser);
 
         // Mock authentication as ADMIN
         mockAuthentication("ROLE_ADMIN");
 
         // When
-        ResponseEntity<PlayerDTO> response = playerController.getPlayerWithLowestSuccessRate();
+        ResponseEntity<CustomPlayerDTO> response = playerController.getPlayerWithLowestSuccessRate();
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -187,14 +191,14 @@ public class PlayerControllerTest {
     @Test
     public void testGetPlayerWithHighestSuccessRate_Admin_Success() {
         // Given
-        PlayerDTO winner = new PlayerDTO( "Player One", "player1@example.com", "password");
+        CustomPlayerDTO winner = new CustomPlayerDTO("Player One", "player1@example.com", "50%",33);
         when(playerService.getPlayerWithHighestSuccessRate()).thenReturn(winner);
 
         // Mock authentication as ADMIN
         mockAuthentication("ROLE_ADMIN");
 
         // When
-        ResponseEntity<PlayerDTO> response = playerController.getPlayerWithHighestSuccessRate();
+        ResponseEntity<CustomPlayerDTO> response = playerController.getPlayerWithHighestSuccessRate();
 
         // Then
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -222,4 +226,6 @@ public class PlayerControllerTest {
 
         verify(playerService, never()).createPlayer(any(PlayerDTO.class));
     }
+
+
 }
