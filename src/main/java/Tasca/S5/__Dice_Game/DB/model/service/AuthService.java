@@ -75,10 +75,6 @@ public class AuthService {
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         Role role = Role.ROLE_USER; // Default role
 
-        // Check if nickname starts with "admin"
-       // if (request.getName() != null && request.getName().startsWith("admin")) {
-        //    role = Role.ROLE_ADMIN;
-       // }
 
         Player user = Player.builder()
                 .email(request.getEmail())

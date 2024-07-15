@@ -2,6 +2,7 @@ package Tasca.S5.__Dice_Game.DB.model.dto;
 
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import Tasca.S5.__Dice_Game.DB.model.domain.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.text.DecimalFormat;
@@ -17,8 +18,10 @@ public class PlayerDTO {
     private String id;
     private String name;
     private String email;
+    @JsonIgnore
     private String password;
     private LocalDate registrationDate;
+    @JsonIgnore
     private Role role;
 
     private String successRate;
@@ -31,7 +34,7 @@ public class PlayerDTO {
         this.registrationDate = LocalDate.now();
         this.email = email;
         this.password = password;
-        //this.role = Role.ROLE_USER;
+
     }
 
     public PlayerDTO(Player player) {

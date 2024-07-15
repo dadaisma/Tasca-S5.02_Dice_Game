@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
 
-       // throw new UnsupportedOperationException("Unimplemented method 'dofilterInternal'");
+
         final String token = getTokenFromRequest(request);
         final String email;
 
