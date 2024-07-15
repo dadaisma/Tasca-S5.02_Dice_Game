@@ -90,14 +90,14 @@ public class PlayerServiceImpl implements PlayerService {
             playerDTO.setRole(playerDTO.getRole());
         }
 
-        // Determine the role based on the nickname
-        Role role = Role.ROLE_USER; // Default role
+   //      Determine the role based on the nickname
+      Role role = Role.ROLE_USER; // Default role
         if (playerDTO.getName() != null && playerDTO.getName().toLowerCase().contains("admin")) {
             role = Role.ROLE_ADMIN;
-        }
+      }
 
         // Update the role in the playerDTO
-        playerDTO.setRole(role);
+      playerDTO.setRole(role);
 
         // Create a new Player entity from the provided PlayerDTO
         Player player = new Player(playerDTO.getName(), playerDTO.getEmail(), encodedPassword, playerDTO.getRole());

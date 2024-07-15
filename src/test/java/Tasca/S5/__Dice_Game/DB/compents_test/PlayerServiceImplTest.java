@@ -2,42 +2,27 @@ package Tasca.S5.__Dice_Game.DB.compents_test;
 
 
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
-import Tasca.S5.__Dice_Game.DB.model.domain.Role;
 import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.repository.GameRepository;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
 import Tasca.S5.__Dice_Game.DB.model.service.PlayerServiceImpl;
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Arrays;
-import java.security.Principal;
-import java.util.List;
-import java.util.Optional;
 
-import static Tasca.S5.__Dice_Game.DB.model.domain.Role.ROLE_ADMIN;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockAuthentication;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 //@DataMongoTest
 //@ActiveProfiles("test")
