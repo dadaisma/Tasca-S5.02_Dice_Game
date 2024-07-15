@@ -53,22 +53,19 @@ public class AuthenticationController {
             // Extract the JWT token from the Authorization header
             String jwt = extractJwtFromAuthorizationHeader(authorizationHeader);
 
-            // Invalidate the token by setting its expiration to one day before
-            String invalidatedToken = jwtService.invalidateToken(jwt);
+            // Invalidate the token
+            jwtService.invalidateToken(jwt);
 
-            // Print the invalidated token to verify (optional)
-            System.out.println("Invalidated Token: " + invalidatedToken);
-
-            return new ResponseEntity<>("Logged out successfully.\n Invalidated Token: " + invalidatedToken, HttpStatus.OK);
+            return new ResponseEntity<>("Logged out successfully.", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>("Error logging out: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     private String extractJwtFromAuthorizationHeader(String authorizationHeader) {
-        if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             return authorizationHeader.substring(7);
         }
-        throw new IllegalArgumentException("Authorization header format is incorrect");
+        throw new IllegalArgumentException("Invalid Authorization header format.");
     }
 }
