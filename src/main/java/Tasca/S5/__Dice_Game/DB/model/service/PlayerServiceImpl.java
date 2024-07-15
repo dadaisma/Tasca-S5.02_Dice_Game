@@ -215,21 +215,30 @@ public class PlayerServiceImpl implements PlayerService {
     public String getAverageSuccessRate() {
         List<Player> players = playerRepository.findAll();
         if (players.isEmpty()) {
-            throw new EntityNotFoundException( "No players found.");
+            throw new EntityNotFoundException("No players found.");
         }
 
-        double totalSuccessRate = players.stream()
-                .mapToDouble(player ->
-                    calculateSuccessRate(player.getId())).sum();
+        // Filter out players with the role ROLE_ADMIN
+        List<Player> nonAdminPlayers = players.stream()
+                .filter(player -> player.getRole() != Role.ROLE_ADMIN)
+                .collect(Collectors.toList());
 
-        double averageSuccessRate = totalSuccessRate / players.size();
-        long totalGamesPlayed = players.stream()
+        if (nonAdminPlayers.isEmpty()) {
+            throw new EntityNotFoundException("No non-admin players found.");
+        }
+
+        double totalSuccessRate = nonAdminPlayers.stream()
+                .mapToDouble(player -> calculateSuccessRate(player.getId()))
+                .sum();
+
+        double averageSuccessRate = totalSuccessRate / nonAdminPlayers.size();
+        long totalGamesPlayed = nonAdminPlayers.stream()
                 .mapToLong(player -> gameRepository.countByPlayerId(player.getId()))
                 .sum();
 
-        Integer totalPlayers = players.size();
+        Integer totalNonAdminPlayers = nonAdminPlayers.size();
 
-        return String.format("The success rate is %.2f %% on an overall of  %d games played and %d players registered", averageSuccessRate, totalGamesPlayed, totalPlayers);
+        return String.format("The success rate is %.2f%% on an overall of %d games played and %d non-admin players registered", averageSuccessRate, totalGamesPlayed, totalNonAdminPlayers);
     }
 
     private double calculateSuccessRate(String playerId) {
@@ -247,6 +256,7 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public PlayerDTO getPlayerWithLowestSuccessRate() {
         return playerRepository.findAll().stream()
+                .filter(player -> player.getRole() != Role.ROLE_ADMIN) // Exclude ROLE_ADMIN players
                 .min(Comparator.comparingDouble(player -> calculateSuccessRate(player.getId())))
                 .map(player -> {
                     PlayerDTO playerDTO = new PlayerDTO(player);
@@ -260,6 +270,7 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     public PlayerDTO getPlayerWithHighestSuccessRate() {
         return playerRepository.findAll().stream()
+                .filter(player -> player.getRole() != Role.ROLE_ADMIN)
                 .max(Comparator.comparingDouble(player -> calculateSuccessRate(player.getId())))
                 .map(player -> {
                     PlayerDTO playerDTO = new PlayerDTO(player);
