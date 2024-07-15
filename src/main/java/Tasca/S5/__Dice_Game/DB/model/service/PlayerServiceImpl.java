@@ -181,9 +181,18 @@ public class PlayerServiceImpl implements PlayerService {
 
 
 
+    @Override
     public PlayerDTO getPlayerById(String id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
+
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Get One Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
+
+        if (!isAdmin && player.getRole() == Role.ROLE_ADMIN) {
+            throw new InsufficientAuthenticationException("You don't have permissions to view this player's data");
+        }
 
         PlayerDTO playerDTO = new PlayerDTO(player);
         double successRate = calculateSuccessRate(player.getId());
@@ -194,7 +203,12 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public List<PlayerDTO> getAllPlayers() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
+
         return playerRepository.findAll().stream()
+                .filter(player -> isAdmin || player.getRole() != Role.ROLE_ADMIN) // Exclude ROLE_ADMIN players if the current user is not an admin
                 .map(player -> {
                     PlayerDTO playerDTO = new PlayerDTO(player);
                     double successRate = calculateSuccessRate(player.getId());
@@ -204,11 +218,6 @@ public class PlayerServiceImpl implements PlayerService {
                     return playerDTO;
                 })
                 .collect(Collectors.toList());
-    }
-
-    private List<Game> getGamesForPlayer(String playerId) {
-        Optional<List<Game>> gamesOpt = gameRepository.findByPlayerId(playerId);
-        return gamesOpt.orElse(Collections.emptyList());
     }
 
     @Override
