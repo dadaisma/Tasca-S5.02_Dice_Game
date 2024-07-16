@@ -141,35 +141,35 @@ public class PlayerServiceImpl implements PlayerService {
 
         // Retrieve the player by ID
         Player player = playerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Update Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
+                .orElseThrow(() -> new EntityNotFoundException("Player not found with ID: " + id));
 
-        // Validate name
-        if (StringUtils.isEmpty(playerDTO.getName())) {
+        // Validate and update name
+        String newName = playerDTO.getName();
+        if (StringUtils.isEmpty(newName)) {
             throw new IllegalArgumentException("Name cannot be empty");
         }
+        if (!newName.equals(player.getName())) {
+            validateNameUniqueness(newName, id);
+            player.setName(newName);
+        }
 
-        // Validate email
-        if (StringUtils.isEmpty(playerDTO.getEmail())) {
+        // Validate and update email
+        String newEmail = playerDTO.getEmail();
+        if (StringUtils.isEmpty(newEmail)) {
             throw new IllegalArgumentException("Email cannot be empty");
         }
-
-        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
-        Pattern pattern = Pattern.compile(emailRegex);
-        Matcher matcher = pattern.matcher(playerDTO.getEmail());
-        if (!matcher.matches()) {
-            throw new IllegalArgumentException("Invalid email format");
+        if (!newEmail.equals(player.getEmail())) {
+            validateEmailUniqueness(newEmail, id);
+            validateEmailFormat(newEmail);
+            player.setEmail(newEmail);
         }
 
-        // Validate password
-        if (StringUtils.isEmpty(playerDTO.getPassword())) {
+        // Validate and update password
+        String newPassword = playerDTO.getPassword();
+        if (StringUtils.isEmpty(newPassword)) {
             throw new IllegalArgumentException("Password cannot be empty");
         }
-        String newPassword = playerDTO.getPassword();
         String encodedPassword = passwordEncoder.encode(newPassword);
-
-        // Update player details
-        player.setName(playerDTO.getName());
-        player.setEmail(playerDTO.getEmail());
         player.setPassword(encodedPassword);
 
         // Guard clause to handle role update
@@ -182,16 +182,39 @@ public class PlayerServiceImpl implements PlayerService {
             player.setRole(playerDTO.getRole());
         }
 
-
+        // Save the updated player
         Player updatedPlayer = playerRepository.save(player);
 
-
-        double successRate = calculateSuccessRate(player.getId());
+        // Prepare and return the updated PlayerDTO
+        double successRate = calculateSuccessRate(updatedPlayer.getId());
         PlayerDTO updatedPlayerDTO = new PlayerDTO(updatedPlayer);
         updatedPlayerDTO.setSuccessRate(successRate);
         updatedPlayerDTO.setTotalPlayedGames(calculateTotalPlayedGames(updatedPlayer.getId()));
 
         return updatedPlayerDTO;
+    }
+
+    private void validateNameUniqueness(String name, String currentUserId) {
+        playerRepository.findByNameIgnoreCaseAndIdNot(name, currentUserId)
+                .ifPresent(existingPlayer -> {
+                    throw new IllegalArgumentException("Player with name " + name + " already exists");
+                });
+    }
+
+    private void validateEmailUniqueness(String email, String currentUserId) {
+        playerRepository.findByEmailIgnoreCaseAndIdNot(email, currentUserId)
+                .ifPresent(existingPlayer -> {
+                    throw new IllegalArgumentException("Player with email " + email + " already exists");
+                });
+    }
+
+    private void validateEmailFormat(String email) {
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+        Pattern pattern = Pattern.compile(emailRegex);
+        Matcher matcher = pattern.matcher(email);
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
     }
 
 
