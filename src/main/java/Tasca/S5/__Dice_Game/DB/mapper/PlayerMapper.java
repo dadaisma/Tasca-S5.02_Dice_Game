@@ -1,8 +1,7 @@
-package Tasca.S5.__Dice_Game.DB.model.service;
+package Tasca.S5.__Dice_Game.DB.mapper;
 
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import Tasca.S5.__Dice_Game.DB.model.dto.CustomPlayerDTO;
-import Tasca.S5.__Dice_Game.DB.model.dto.PlayerDTO;
 import Tasca.S5.__Dice_Game.DB.model.repository.GameRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

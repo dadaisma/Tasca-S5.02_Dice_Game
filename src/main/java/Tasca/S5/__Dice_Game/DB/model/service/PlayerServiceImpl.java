@@ -1,6 +1,6 @@
 package Tasca.S5.__Dice_Game.DB.model.service;
 
-import Tasca.S5.__Dice_Game.DB.model.domain.Game;
+import Tasca.S5.__Dice_Game.DB.mapper.PlayerMapper;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
 import Tasca.S5.__Dice_Game.DB.model.domain.Role;
 import Tasca.S5.__Dice_Game.DB.model.dto.CustomPlayerDTO;
@@ -20,10 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
