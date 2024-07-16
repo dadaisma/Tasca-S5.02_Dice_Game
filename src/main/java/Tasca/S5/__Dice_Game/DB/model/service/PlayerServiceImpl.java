@@ -285,7 +285,7 @@ public class PlayerServiceImpl implements PlayerService {
 
         Integer totalNonAdminPlayers = nonAdminPlayers.size();
 
-        return String.format("The success rate is %.2f%% on an overall of %d games played and %d non-admin players registered", averageSuccessRate, totalGamesPlayed, totalNonAdminPlayers);
+        return String.format("The success rate is %.2f%% on an overall of %d games played and %d players registered", averageSuccessRate, totalGamesPlayed, totalNonAdminPlayers);
     }
 
     private double calculateSuccessRate(String playerId) {
