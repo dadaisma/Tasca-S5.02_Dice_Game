@@ -128,27 +128,30 @@ public class PlayerServiceImpl implements PlayerService {
 
 
     @Override
-        public PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO) {
+    public PlayerDTO updatePlayerName(String id, PlayerDTO playerDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserId = ((Player) authentication.getPrincipal()).getId();
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equalsIgnoreCase("ROLE_ADMIN"));
 
-
+        // Check if the user is not an admin and trying to modify another user's data
         if (!isAdmin && !id.equals(currentUserId)) {
             throw new InsufficientAuthenticationException("You don't have permissions to modify this player's data");
         }
 
-
+        // Retrieve the player by ID
         Player player = playerRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Update Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
+                .orElseThrow(() -> new EntityNotFoundException("Update Player Failed: Invalid player id: " + id + " -> DOESN'T EXIST in DataBase"));
 
-            if (StringUtils.isEmpty(playerDTO.getName())) {
-                throw new IllegalArgumentException("Name cannot be empty");
-            }
-            if (StringUtils.isEmpty(playerDTO.getEmail())) {
-                throw new IllegalArgumentException("Email cannot be empty");
-            }
+        // Validate name
+        if (StringUtils.isEmpty(playerDTO.getName())) {
+            throw new IllegalArgumentException("Name cannot be empty");
+        }
+
+        // Validate email
+        if (StringUtils.isEmpty(playerDTO.getEmail())) {
+            throw new IllegalArgumentException("Email cannot be empty");
+        }
 
         String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
         Pattern pattern = Pattern.compile(emailRegex);
@@ -157,32 +160,39 @@ public class PlayerServiceImpl implements PlayerService {
             throw new IllegalArgumentException("Invalid email format");
         }
 
-
-            if (StringUtils.isEmpty(playerDTO.getPassword())) {
-                throw new IllegalArgumentException("Password cannot be empty");
-            }
-            String newPassword = playerDTO.getPassword();
-            String encodedPassword = passwordEncoder.encode(newPassword);
-
-            player.setName(playerDTO.getName());
-            player.setEmail(playerDTO.getEmail());
-            player.setPassword(encodedPassword);
-
-
-            if (isAdmin && playerDTO.getRole() != null) {
-            player.setRole(playerDTO.getRole());
-            }
-
-
-            Player updatedPlayer = playerRepository.save(player);
-
-            double successRate = calculateSuccessRate(player.getId());
-            PlayerDTO updatedPlayerDTO = new PlayerDTO(updatedPlayer);
-            updatedPlayerDTO.setSuccessRate(successRate);
-            updatedPlayerDTO.setTotalPlayedGames(calculateTotalPlayedGames(updatedPlayer.getId()));
-
-            return updatedPlayerDTO;
+        // Validate password
+        if (StringUtils.isEmpty(playerDTO.getPassword())) {
+            throw new IllegalArgumentException("Password cannot be empty");
         }
+        String newPassword = playerDTO.getPassword();
+        String encodedPassword = passwordEncoder.encode(newPassword);
+
+        // Update player details
+        player.setName(playerDTO.getName());
+        player.setEmail(playerDTO.getEmail());
+        player.setPassword(encodedPassword);
+
+        // Guard clause to handle role update
+        if (playerDTO.getRole() != null && !isAdmin) {
+            throw new InsufficientAuthenticationException("You don't have permissions to modify the player's role");
+        }
+
+        // Update role if the user is an admin
+        if (playerDTO.getRole() != null) {
+            player.setRole(playerDTO.getRole());
+        }
+
+
+        Player updatedPlayer = playerRepository.save(player);
+
+
+        double successRate = calculateSuccessRate(player.getId());
+        PlayerDTO updatedPlayerDTO = new PlayerDTO(updatedPlayer);
+        updatedPlayerDTO.setSuccessRate(successRate);
+        updatedPlayerDTO.setTotalPlayedGames(calculateTotalPlayedGames(updatedPlayer.getId()));
+
+        return updatedPlayerDTO;
+    }
 
 
 

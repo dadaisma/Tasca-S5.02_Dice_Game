@@ -3,6 +3,7 @@ package Tasca.S5.__Dice_Game.DB.model.service;
 import Tasca.S5.__Dice_Game.DB.model.dto.GameDTO;
 import Tasca.S5.__Dice_Game.DB.model.domain.Game;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
+import Tasca.S5.__Dice_Game.DB.model.exceptions.DeletionFailedException;
 import Tasca.S5.__Dice_Game.DB.model.repository.GameRepository;
 import Tasca.S5.__Dice_Game.DB.model.repository.PlayerRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,17 +31,11 @@ public class GameServiceImp implements GameService {
     private final Random random = new Random();
 
     private List<Game> getGamesForPlayer(String playerId) {
-        Optional<Player> playerOpt = playerRepository.findById(playerId);
-        if (playerOpt.isPresent()) {
-            Optional<List<Game>> gamesOpt = gameRepository.findByPlayerId(playerId);
-            if (gamesOpt.isPresent()) {
-                return gamesOpt.get();
-            } else {
-                throw new EntityNotFoundException("Games for Player with ID " + playerId + " not found in MySQL");
-            }
-        } else {
-            throw new EntityNotFoundException("Player with ID " + playerId + " not found in MongoDB");
-        }
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new EntityNotFoundException("Player with ID " + playerId + " not found in MongoDB"));
+
+        return gameRepository.findByPlayerId(playerId)
+                .orElseThrow(() -> new EntityNotFoundException("Games for Player with ID " + playerId + " not found in MySQL"));
     }
 
 
@@ -79,6 +74,9 @@ public class GameServiceImp implements GameService {
     @Override
     public List<GameDTO> getGamesByPlayerId(String playerId) {
         List<Game> games = getGamesForPlayer(playerId);
+        if (games.isEmpty()) {
+            throw new EntityNotFoundException("No games found for player ID " + playerId);
+        }
 
         return games.stream()
                 .map(game -> new GameDTO(game.getId(), game.getDie1(), game.getDie2(), game.isWon()))
@@ -94,13 +92,19 @@ public class GameServiceImp implements GameService {
 
 
     @Override
-    public void deletePlayerGames(String playerId) {
+    public boolean deletePlayerGames(String playerId) {
         List<Game> games = getGamesForPlayer(playerId);
-        for (Game game : games) {
-            gameRepository.delete(game);
+        if (games.isEmpty()) {
+            throw new EntityNotFoundException("No games found for player ID " + playerId);
         }
+        try {
+            for (Game game : games) {
+                gameRepository.delete(game);
+            }
+        } catch (Exception e) {
+            throw new DeletionFailedException("Failed to delete games for player ID " + playerId + ": " + e.getMessage());
+        }
+        return true;
     }
-
-
 
 }

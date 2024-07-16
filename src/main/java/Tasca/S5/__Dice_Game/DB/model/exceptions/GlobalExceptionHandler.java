@@ -57,4 +57,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String errorMessage = ex.getMessage();
         return new ResponseEntity<>(errorMessage, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(DeletionFailedException.class)
+    public ResponseEntity<String> handleDeletionFailed(DeletionFailedException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
 }

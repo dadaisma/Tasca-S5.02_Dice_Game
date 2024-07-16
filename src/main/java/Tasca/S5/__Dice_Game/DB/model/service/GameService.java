@@ -13,13 +13,8 @@ public interface GameService {
 
     List<GameDTO> getGamesByPlayerId(String playerId);
 
-   void deletePlayerGames(String playerId);
+   boolean deletePlayerGames(String playerId);
 
     List<GameDTO> getAllGameDtos();
-
-
-   // public void updatePlayerGamesInMongoDB(String playerId);
-
-
 
 }

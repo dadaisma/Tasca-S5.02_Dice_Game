@@ -77,10 +77,10 @@ public class GameControllerTest {
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))));
 
         // When
-        ResponseEntity<Void> response = gameController.deletePlayerGames(playerId);
+        ResponseEntity<String> response = gameController.deletePlayerGames(playerId);
 
         // Then
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(gameService, times(1)).deletePlayerGames(playerId);
     }
 

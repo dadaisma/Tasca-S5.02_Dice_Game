@@ -30,7 +30,7 @@ public class GameController {
     @Operation(summary = "roll the die, user can play for himself while ADMIN can play for anyone")
     @PostMapping
     public ResponseEntity<GameDTO>  createGame(@PathVariable String playerId) {
-        // Create game in MySQL
+
         GameDTO createGameDTO = gameService.createGame(playerId);
 
         return new ResponseEntity<>(createGameDTO, createHeaders(token), HttpStatus.CREATED);
@@ -46,12 +46,12 @@ public class GameController {
 
     @Operation(summary = "ADMIN can delete played games of user/s")
     @DeleteMapping
-    public ResponseEntity<Void> deletePlayerGames(@PathVariable String playerId) {
+    public ResponseEntity<String> deletePlayerGames(@PathVariable String playerId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
             throw new InsufficientAuthenticationException("You don't have permissions to access this resource");
         }
         gameService.deletePlayerGames(playerId);
-        return new ResponseEntity<>(createHeaders(token), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>("Player games successfully deleted", HttpStatus.OK);
     }
 }
