@@ -1,69 +1,57 @@
 package Tasca.S5.__Dice_Game.DB.model.dto;
 
-import Tasca.S5.__Dice_Game.DB.model.domain.Game;
 import Tasca.S5.__Dice_Game.DB.model.domain.Player;
+import Tasca.S5.__Dice_Game.DB.model.domain.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 @Data
-
+@Builder
 public class PlayerDTO {
 
-    private Long id;
+    private String id;
     private String name;
+    private String email;
+    private String password;
     private LocalDate registrationDate;
-    @JsonIgnore
-    private double successRate;
+    private Role role;
 
+    private String successRate;
+    @Setter
     private long totalPlayedGames;
- //   private long totalPlayedGamesOverall;
 
+    public PlayerDTO(String name, String email, String password) {
 
-    public PlayerDTO(String name) {
         this.name = (name != null && !name.isEmpty()) ? name : "ANÒNIM";
         this.registrationDate = LocalDate.now();
-       this.successRate = 0.0;
+        this.email = email;
+        this.password = password;
 
- //       this.totalPlayedGamesOverall = 0;
     }
 
     public PlayerDTO(Player player) {
+
         this.id = player.getId();
         this.name = player.getName();
         this.registrationDate = player.getRegistrationDate();
-        this.successRate = roundToTwoDecimalPlaces(calculateSuccessRate(player)) ;
-        this.totalPlayedGames = player.getGames().size();
+        this.email = player.getEmail();
+        this.password = player.getPassword();
+        this.role = player.getRole();
 
-       // this.totalPlayedGamesOverall = getTotalPlayedGames(player);
     }
 
-    private double calculateSuccessRate(Player player) {
-        List<Game> games = player.getGames() != null ? player.getGames() : Collections.emptyList();
 
-        long totalGames = player.getGames().size();
-        long wonGames = player.getGames().stream().filter(Game::isWon).count();
-        return totalGames == 0 ? 0 : (double) wonGames / totalGames * 100;
-    }
-    private long getTotalPlayedGames(Player player) {
-        List<Game> games = player.getGames() != null ? player.getGames() : Collections.emptyList();
-        return games.size();
+    public void setSuccessRate(double successRate) {
+        DecimalFormat df = new DecimalFormat("0.00");
+        this.successRate = df.format(successRate) + " %";
     }
 
-    private double roundToTwoDecimalPlaces(double value) {
-        return Double.parseDouble(String.format(Locale.US, "%.2f ", value )) ;
-    }
 
-    public String getSuccess_Rate() {
-        return String.format(Locale.US, "%.2f %%", successRate);
-    }
 }

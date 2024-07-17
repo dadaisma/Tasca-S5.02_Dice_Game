@@ -1,13 +1,15 @@
 package Tasca.S5.__Dice_Game.DB.model.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 
@@ -15,26 +17,60 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-@Entity
-public class Player {
+@Builder
+
+@Document(collection = "player")
+public class Player implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-   // @Column(unique = true)
+    private String id;
     private String name;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate registrationDate;
+    private Role role;
+    @NonNull
+    private String email;
+    @NonNull
+    private String password;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Game> games = new ArrayList<>();
 
-    public Player(String name) {
+    public Player(String name, @NonNull String email, @NonNull String password, Role role) {
         this.name = name;
+        this.email = email;
+        this.password = password;
+        this.registrationDate = LocalDate.now();
+        this.role = role;
     }
 
 
-    @PrePersist
-    protected void onCreate() {
-        this.registrationDate = LocalDate.now();
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }
